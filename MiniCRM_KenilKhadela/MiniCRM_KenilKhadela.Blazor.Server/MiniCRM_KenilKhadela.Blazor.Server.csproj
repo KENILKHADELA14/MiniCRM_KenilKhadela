@@ -30,4 +30,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MiniCRM_KenilKhadela.Module\MiniCRM_KenilKhadela.Module.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Pages\Components\" />
+  </ItemGroup>
 </Project>

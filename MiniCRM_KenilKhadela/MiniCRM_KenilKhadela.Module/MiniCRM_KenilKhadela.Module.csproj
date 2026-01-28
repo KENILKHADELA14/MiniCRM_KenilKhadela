@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
@@ -8,9 +8,6 @@
     <Configurations>Debug;Release;EasyTest</Configurations>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Model.DesignedDiffs.xafml" />
-  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Model.DesignedDiffs.xafml" />
   </ItemGroup>
@@ -23,12 +20,39 @@
     <PackageReference Include="DevExpress.ExpressApp.Notifications" Version="25.2.*" />
     <PackageReference Include="DevExpress.ExpressApp.Office" Version="25.2.*" />
     <PackageReference Include="DevExpress.ExpressApp.ReportsV2" Version="25.2.*" />
+    <PackageReference Include="DevExpress.ExpressApp.Security" Version="25.2.3" />
     <PackageReference Include="DevExpress.ExpressApp.Validation" Version="25.2.*" />
     <PackageReference Include="DevExpress.ExpressApp.Xpo" Version="25.2.*" />
     <PackageReference Include="DevExpress.Persistent.Base" Version="25.2.*" />
     <PackageReference Include="DevExpress.Persistent.BaseImpl.Xpo" Version="25.2.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="8.0.15" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.2" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
     
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="DevExpress.ExpressApp.Blazor.v25.2">
+      <HintPath>..\..\..\..\..\..\..\Program Files\DevExpress 25.2\Components\Offline Packages\devexpress.expressapp.blazor\25.2.3\lib\net8.0\DevExpress.ExpressApp.Blazor.v25.2.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="UnusableNodes.xml">
+      <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
+    </None>
+    <None Update="UnusableNodes1.xml">
+      <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
+    </None>
+    <None Update="UnusableNodes3.xml">
+      <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
+    </None>
+    <None Update="UnusableNodes5.xml">
+      <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
+    </None>
+    <None Update="UnusableNodes7.xml">
+      <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
+    </None>
+    <None Update="UnusableNodes8.xml">
+      <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
+    </None>
   </ItemGroup>
 </Project>
