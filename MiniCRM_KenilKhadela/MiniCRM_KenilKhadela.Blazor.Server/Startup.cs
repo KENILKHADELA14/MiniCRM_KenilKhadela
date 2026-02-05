@@ -35,6 +35,7 @@ namespace MiniCRM_KenilKhadela.Blazor.Server
                     .AddAuditTrailXpo()
                     .AddConditionalAppearance()
                     .AddFileAttachments()
+                    .AddScheduler()
                     .AddNotifications()
                     .AddOffice()
                     .AddReports(options =>

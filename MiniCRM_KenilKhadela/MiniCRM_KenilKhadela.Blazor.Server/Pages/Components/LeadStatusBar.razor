@@ -1,0 +1,239 @@
+﻿@using MiniCRM_KenilKhadela.Blazor.Server.Editors.Lead_StatusBar
+@using MiniCRM_KenilKhadela.Module.BusinessObjects
+@using static MiniCRM_KenilKhadela.Module.BusinessObjects.Lead
+@implements IDisposable
+<div class="state-machine">
+    <DxButton CssClass="state-machine-btn" Text="State Machine"
+              IconCssClass="dx-icon-settings"
+              Enabled="@IsCurrentStageSelected"
+              Click="ToggleOptions" />
+
+    @if (showOptions && IsCurrentStageSelected)
+    {
+        <div class="state-machine-options">
+            @if (PreviousStage.HasValue)
+            {
+                <DxButton CssClass="nav-btn prev" Text="@PreviousStage.Value.ToString()" Click="MovePrevious" IconCssClass="dx-icon-chevronleft" />
+            }
+            @if (NextStage.HasValue)
+            {
+                <DxButton CssClass="nav-btn next" Text="@NextStage.Value.ToString()" Click="MoveNext" IconCssClass="dx-icon-chevronright" />
+            }
+        </div>
+    }
+</div>
+<div class="lead-status-bar">
+    
+    <div class="status-container">
+        @foreach (LeadProcessStageEnum stage in Enum.GetValues(typeof(LeadProcessStageEnum)))
+        {
+            <div class="status-item
+                    @(IsCompleted(stage) ? "completed" : "")
+                    @(SelectedStage == stage ? "selected" : "")"
+                 @onclick="() => OnStageClicked(stage)">
+
+                <input type="checkbox"
+                       checked="@IsCompleted(stage)"
+                       disabled />
+
+                <span>@stage</span>
+            </div>
+
+            @if (stage != LeadProcessStageEnum.Closed)
+            {
+                <span class="arrow">→</span>
+            }
+        }
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public LeadStatusBarViewItem ViewItem { get; set; }
+
+    private Lead Lead => ViewItem?.View?.CurrentObject as Lead;
+
+    private LeadProcessStageEnum? SelectedStage;
+    private bool showOptions;
+
+
+    private void OnStageClicked(LeadProcessStageEnum stage)
+    {
+        SelectedStage = stage;
+        showOptions = false; 
+        StateHasChanged();
+    }
+
+
+    private bool IsCompleted(LeadProcessStageEnum stage)
+    {
+        if (stage == LeadProcessStageEnum.Open)
+            return true;
+
+        if (Lead == null)
+            return false;
+
+        return Lead.LeadProcessStage >= stage;
+    }
+
+    private bool IsCurrentStageSelected =>
+        SelectedStage != null &&
+        Lead != null &&
+        SelectedStage == Lead.LeadProcessStage;
+
+
+    private void ToggleOptions()
+    {
+        if (!IsCurrentStageSelected)
+            return;
+
+        showOptions = !showOptions;
+    }
+
+    private LeadProcessStageEnum? NextStage => Lead != null && Lead.LeadProcessStage < LeadProcessStageEnum.Closed ?
+    Lead.LeadProcessStage + 1 : null;
+
+    private LeadProcessStageEnum? PreviousStage => Lead != null && Lead.LeadProcessStage > LeadProcessStageEnum.Open ?
+    Lead.LeadProcessStage - 1 : null;
+
+
+
+    // private bool CanShowNext =>
+    //     Lead != null &&
+    //     Lead.LeadProcessStage < LeadProcessStageEnum.Closed;
+
+    // private bool CanShowPrevious =>
+    //     Lead != null &&
+    //     Lead.LeadProcessStage > LeadProcessStageEnum.Open;
+
+
+    private void MoveNext()
+    {
+        if (Lead == null || Lead.LeadProcessStage == LeadProcessStageEnum.Closed)
+            return;
+
+        Lead.LeadProcessStage = NextStage.Value;
+
+        Commit();
+    }
+
+    private void MovePrevious()
+    {
+        if (Lead == null || Lead.LeadProcessStage == LeadProcessStageEnum.Open)
+            return;
+
+        Lead.LeadProcessStage = PreviousStage.Value;
+
+        Commit();
+    }
+
+    private void Commit()
+    {
+        ViewItem.View.ObjectSpace.CommitChanges();
+        SelectedStage = Lead.LeadProcessStage;
+        showOptions = false;
+        StateHasChanged();
+    }
+
+    public void Dispose() { }
+}
+
+<style>
+    .lead-status-bar {
+        width: auto;
+        padding: 20px 100px 20px 100px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        height: 100px;
+    }
+
+    .status-container {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        gap: 50px;
+    }
+
+    .status-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 15px;
+        background-color: white;
+        border: 2px solid #dee2e6;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+        .status-item.active {
+            background-color: #e7f3ff;
+            border-color: #0d6efd;
+        }
+
+        .status-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #0d6efd;
+        }
+
+        .status-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+            color: #495057;
+            user-select: none;
+        }
+
+        .status-item.active label {
+            color: #0d6efd;
+            font-weight: 600;
+        }
+
+    .status-arrow {
+        font-size: 24px;
+        color: #adb5bd;
+        font-weight: bold;
+    }
+
+    .status-item input[type="checkbox"]:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+    .state-machine{
+        display:flex;
+        align-items:center;
+        gap:10px;
+    }
+
+    .state-machine-btn{
+        width:100px;
+        height:38px;
+        background-color:black;
+    }
+
+    .state-machine-options{
+        display:flex;
+        gap:8px;
+        padding:6px 10px;
+        background:white;
+        box-shadow:0 4px 12px;
+    }
+
+    .nav-btn{
+        width:100px;
+        height:36px;
+    }
+
+    .nav-btn.prev{
+        background:black;
+    }
+    .nav-btn.next{
+        background:black;
+    }
+</style>

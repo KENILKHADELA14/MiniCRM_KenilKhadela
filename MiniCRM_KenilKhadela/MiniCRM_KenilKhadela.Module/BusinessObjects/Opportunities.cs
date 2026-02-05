@@ -51,6 +51,7 @@ public enum PurchaseProcess
 }
 
 [DefaultProperty(nameof(Topic))]
+[NavigationItem("Sales")]
 public class Opportunities : BaseObject {
     // Inherit from a different class to provide a custom primary key, concurrency and deletion behavior, etc. (https://docs.devexpress.com/eXpressAppFramework/113146/business-model-design-orm/business-model-design-with-xpo/base-persistent-classes).
     // Use CodeRush to create XPO classes and properties with a few keystrokes.

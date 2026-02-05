@@ -9,6 +9,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Model.DesignedDiffs.xafml" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Model.DesignedDiffs.xafml" />
   </ItemGroup>
   <ItemGroup>
@@ -20,6 +23,7 @@
     <PackageReference Include="DevExpress.ExpressApp.Notifications" Version="25.2.*" />
     <PackageReference Include="DevExpress.ExpressApp.Office" Version="25.2.*" />
     <PackageReference Include="DevExpress.ExpressApp.ReportsV2" Version="25.2.*" />
+    <PackageReference Include="DevExpress.ExpressApp.Scheduler" Version="25.2.3" />
     <PackageReference Include="DevExpress.ExpressApp.Security" Version="25.2.3" />
     <PackageReference Include="DevExpress.ExpressApp.Validation" Version="25.2.*" />
     <PackageReference Include="DevExpress.ExpressApp.Xpo" Version="25.2.*" />
@@ -34,11 +38,11 @@
     <Reference Include="DevExpress.ExpressApp.Blazor.v25.2">
       <HintPath>..\..\..\..\..\..\..\Program Files\DevExpress 25.2\Components\Offline Packages\devexpress.expressapp.blazor\25.2.3\lib\net8.0\DevExpress.ExpressApp.Blazor.v25.2.dll</HintPath>
     </Reference>
+    <Reference Include="DevExpress.ExpressApp.Scheduler.Blazor.v25.2">
+      <HintPath>..\..\..\..\..\..\..\Program Files\DevExpress 25.2\Components\Offline Packages\devexpress.expressapp.scheduler.blazor\25.2.3\lib\net8.0\DevExpress.ExpressApp.Scheduler.Blazor.v25.2.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Update="UnusableNodes.xml">
-      <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
-    </None>
     <None Update="UnusableNodes1.xml">
       <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
     </None>
@@ -46,9 +50,6 @@
       <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
     </None>
     <None Update="UnusableNodes5.xml">
-      <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
-    </None>
-    <None Update="UnusableNodes7.xml">
       <DependentUpon>Model.DesignedDiffs.xafml</DependentUpon>
     </None>
     <None Update="UnusableNodes8.xml">

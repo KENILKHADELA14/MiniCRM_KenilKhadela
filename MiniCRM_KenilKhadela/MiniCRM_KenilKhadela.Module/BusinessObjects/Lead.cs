@@ -153,6 +153,7 @@ public class Lead : BaseObject
     [VisibleInListView(false)]
     [ImmediatePostData]
     [RuleRequiredField]
+    [Aggregated]
     [ExpandObjectMembers(ExpandObjectMembers.Never)]
     public Address Address2
     {
@@ -173,7 +174,7 @@ public class Lead : BaseObject
     }
 
     private string phone;
-    [RuleRegularExpression(@"^[0-9+\- ]{7-15}$",CustomMessageTemplate ="Invalid Phone Number")]
+    //[RuleRegularExpression(@"^[0-9+\- ]{7-15}$",CustomMessageTemplate ="Invalid Phone Number")]
     [VisibleInListView(false)]
     public string Phone
     {
@@ -227,6 +228,11 @@ public class Lead : BaseObject
         set=> SetPropertyValue(nameof(Website), ref website, value);
     }
 
+    [NonPersistent]
+    [VisibleInListView(false)]
+    [XafDisplayName("")]
+    public string DisplayName => $"{CompanyName} - {FullName}";
+
     private Accounts parentAccount;
     [VisibleInListView(false)]
     [ExpandObjectMembers(ExpandObjectMembers.Never)]
@@ -253,7 +259,72 @@ public class Lead : BaseObject
         get => parentContact;
         set => SetPropertyValue(nameof(ParentContact), ref parentContact, value);
     }
+    
+    [Association("Activities-Leads")]
+    public XPCollection<Activity> Activities => GetCollection<Activity>(nameof(Activities));
 
+    [VisibleInListView(false)]
+    public bool IsQualifiedProcessed {get;set;}
+
+    [VisibleInListView(false)]
+    public Accounts Account { get; set; }
+    [VisibleInListView(false)]
+    public Contact Contact { get; set; }
+    [VisibleInListView(false)]
+    public Opportunities Opportunity { get; set; }
+
+    protected override void OnSaving()
+    {
+        base.OnSaving();
+
+        if (Session.IsNewObject(this)) return;
+
+        if(LeadStatus==LeadStatusEnum.Qualified && !IsQualifiedProcessed)
+        {
+            CreateQualifiedObjects();
+            IsQualifiedProcessed = true;
+        }
+    }
+
+    private void CreateQualifiedObjects()
+    {
+        Account = new Accounts(Session)
+        {
+            AccountName = CompanyName,
+            Address1 = Address1,
+            Address2 = Address2,
+            Phone = Phone,
+            Website = Website,
+            ReadableName = $"Account Created from Lead: {FullName}",
+            PrimaryContact = ParentContact
+        };
+
+        Opportunity =new Opportunities(Session)
+        {
+            Topic = Subject,
+            TimeFrame = TimeFrame.ThisYear,
+            Budget = 0,
+            BudgetStatus = BudgetStatus.WillBuy,
+            ForecastCategory = ForecastCategory.BestCase,
+            EstimatedCloseDate = DateTime.Now.AddMonths(1),
+            Description = $"Opportunity created from Lead: {FullName}",
+            Accounts = Account,
+           Contact = Contact
+        };
+
+        Contact = new Contact(Session)
+        {
+            FirstName = FirstName,
+            LastName = LastName,
+            Email = Email,
+            PhoneNumber = Phone,
+            ReadableFirstName = ReadableFirstName,
+            ReadableLastName = ReadableLastName,
+            Title = Title,
+            Address1 = Address1,
+            Address2 = Address2
+        };
+    }
 
     public enum LeadStatusEnum
     {

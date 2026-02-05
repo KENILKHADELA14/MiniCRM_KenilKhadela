@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 
 namespace MiniCRM_KenilKhadela.Module.BusinessObjects;
 
@@ -127,7 +128,9 @@ public class Contact : BaseObject {
 
     private Address address1;
     [XafDisplayName("Address1")]
+    [ExpandObjectMembers(ExpandObjectMembers.Never)]
     [VisibleInListView(false)]
+    [Aggregated]
     public Address Address1
     {
         get => address1;
@@ -136,6 +139,8 @@ public class Contact : BaseObject {
 
     private Address address2;
     [XafDisplayName("Address2")]
+    [ExpandObjectMembers(ExpandObjectMembers.Never)]
+    [Aggregated]
     [VisibleInListView(false)]
     public Address Address2
     {
@@ -168,7 +173,7 @@ public class Contact : BaseObject {
             return GetCollection<Opportunities>(nameof(Opportunities));
         }
     }
-
+    
     [Association("Contacts-Accounts")]
     public XPCollection<Accounts> Accounts
     {
@@ -177,6 +182,10 @@ public class Contact : BaseObject {
             return GetCollection<Accounts>(nameof(Accounts));
         }
     }
+
+    [Association("Contact-Activities")]
+    public XPCollection<Activity> Activities => GetCollection<Activity>(nameof(Activities));
+
 
     public enum ContactState
     {
