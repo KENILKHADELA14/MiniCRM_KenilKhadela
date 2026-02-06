@@ -24,6 +24,7 @@
     <PackageReference Include="DevExpress.ExpressApp.Notifications.Blazor" Version="25.2.*" />
     <PackageReference Include="DevExpress.ExpressApp.Office.Blazor" Version="25.2.*" />
     <PackageReference Include="DevExpress.ExpressApp.ReportsV2.Blazor" Version="25.2.*" />
+    <PackageReference Include="DevExpress.ExpressApp.Scheduler.Blazor" Version="25.2.3" />
     <PackageReference Include="DevExpress.ExpressApp.Validation.Blazor" Version="25.2.*" />
     
   </ItemGroup>

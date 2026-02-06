@@ -7,11 +7,16 @@ using DevExpress.ExpressApp.Model;
 using DevExpress.ExpressApp.Model.Core;
 using DevExpress.ExpressApp.Model.DomainLogics;
 using DevExpress.ExpressApp.Model.NodeGenerators;
+using DevExpress.ExpressApp.Scheduler.Blazor;
+using DevExpress.ExpressApp.Scheduler;
 using DevExpress.ExpressApp.Updating;
 using DevExpress.ExpressApp.Xpo;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Xpo;
+using Microsoft.CodeAnalysis.Operations;
+using DevExpress.Persistent.Base.General;
+using MiniCRM_KenilKhadela.Module.BusinessObjects;
 
 namespace MiniCRM_KenilKhadela.Module
 {
@@ -36,6 +41,8 @@ namespace MiniCRM_KenilKhadela.Module
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Office.OfficeModule));
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.ReportsV2.ReportsModuleV2));
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Validation.ValidationModule));
+            RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Scheduler.SchedulerModuleBase));
+            RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Scheduler.Blazor.SchedulerBlazorModule));
         }
         public override IEnumerable<ModuleUpdater> GetModuleUpdaters(IObjectSpace objectSpace, Version versionFromDB)
         {
