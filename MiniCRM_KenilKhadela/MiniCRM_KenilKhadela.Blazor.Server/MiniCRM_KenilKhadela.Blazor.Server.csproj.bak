@@ -17,17 +17,16 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DevExpress.Drawing.Skia" Version="25.2.4" />
+    <PackageReference Include="DevExpress.Drawing.Skia" Version="25.2.*" />
     <PackageReference Include="DevExpress.ExpressApp.Blazor" Version="25.2.4" />
     <PackageReference Include="DevExpress.ExpressApp.CodeAnalysis" Version="25.2.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="DevExpress.ExpressApp.Dashboards.Blazor" Version="25.2.4" />
     <PackageReference Include="DevExpress.ExpressApp.FileAttachment.Blazor" Version="25.2.4" />
     <PackageReference Include="DevExpress.ExpressApp.Notifications.Blazor" Version="25.2.4" />
-    <PackageReference Include="DevExpress.ExpressApp.Office.Blazor" Version="25.2.4" />
-    <PackageReference Include="DevExpress.ExpressApp.ReportsV2.Blazor" Version="25.2.4" />
+    <PackageReference Include="DevExpress.ExpressApp.Office.Blazor" Version="25.2.*" />
+    <PackageReference Include="DevExpress.ExpressApp.ReportsV2.Blazor" Version="25.2.*" />
     <PackageReference Include="DevExpress.ExpressApp.Scheduler" Version="25.2.4" />
     <PackageReference Include="DevExpress.ExpressApp.Scheduler.Blazor" Version="25.2.4" />
     <PackageReference Include="DevExpress.ExpressApp.Validation.Blazor" Version="25.2.*" />

@@ -1,6 +1,8 @@
-﻿using DevExpress.ExpressApp.DC;
+﻿using DevExpress.ExpressApp;
+using DevExpress.ExpressApp.DC;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
+using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using DevExpress.Xpo;
 using DevExpress.XtraReports.Native.CodeCompletion;
 using System;
@@ -85,6 +87,64 @@ namespace MiniCRM_KenilKhadela.Module.BusinessObjects
         {
             get=> primaryContact;
             set=> SetPropertyValue(nameof(PrimaryContact),ref primaryContact, value);
+        }
+
+        private XPCollection<AuditDataItemPersistent> auditTrail;
+        [CollectionOperationSet(AllowAdd = false, AllowRemove = false)]
+        public XPCollection<AuditDataItemPersistent> AuditTrail
+        {
+            get
+            {
+                if (auditTrail == null)
+                {
+                    auditTrail = AuditedObjectWeakReference.GetAuditTrail(Session, this);
+                }
+                return auditTrail;
+            }
+        }
+
+        public override void AfterConstruction()
+        {
+            base.AfterConstruction();
+            if (SecuritySystem.CurrentUser is PermissionPolicyUser user)
+            {
+                Owner = Session.GetObjectByKey<PermissionPolicyUser>(user.Oid);
+                createdBy = Session.GetObjectByKey<PermissionPolicyUser>(user.Oid);
+                modifiedBy = Session.GetObjectByKey<PermissionPolicyUser>(user.Oid);
+            }
+            CreatedOn = DateTime.Now;
+        }
+
+        private DateTime? createdOn;
+        [XafDisplayName(nameof(CreatedOn))]
+        public DateTime? CreatedOn
+        {
+            get => createdOn;
+            set => SetPropertyValue(nameof(CreatedOn), ref createdOn, value);
+        }
+
+        private DateTime? modifiedOn;
+        [XafDisplayName(nameof(ModifiedOn))]
+        public DateTime? ModifiedOn
+        {
+            get => modifiedOn;
+            set => SetPropertyValue(nameof(ModifiedOn), ref modifiedOn, value);
+        }
+
+        private PermissionPolicyUser createdBy;
+        public PermissionPolicyUser CreatedBy
+        {
+            get => createdBy;
+            set => SetPropertyValue(nameof(CreatedBy), ref createdBy, value);
+        }
+
+        private PermissionPolicyUser owner;
+        public PermissionPolicyUser Owner { get => owner; set => SetPropertyValue(nameof(Owner), ref owner, value); }
+
+        private PermissionPolicyUser modifiedBy; public PermissionPolicyUser ModifiedBy
+        {
+            get => modifiedBy;
+            set => SetPropertyValue(nameof(ModifiedBy), ref modifiedBy, value);
         }
 
         private Opportunities opportunities;

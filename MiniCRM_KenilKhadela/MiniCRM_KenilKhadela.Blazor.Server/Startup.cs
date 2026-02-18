@@ -2,7 +2,9 @@
 using DevExpress.ExpressApp.Blazor.ApplicationBuilder;
 using DevExpress.ExpressApp.Blazor.Services;
 using DevExpress.ExpressApp.Xpo;
+using System.Globalization;
 using DevExpress.Persistent.Base;
+using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using MiniCRM_KenilKhadela.Blazor.Server.Services;
@@ -28,6 +30,16 @@ namespace MiniCRM_KenilKhadela.Blazor.Server
             services.AddServerSideBlazor();
             services.AddHttpContextAccessor();
             services.AddScoped<CircuitHandler, CircuitHandlerProxy>();
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = "Cookies";
+                options.DefaultAuthenticateScheme = "Cookies";
+                options.DefaultChallengeScheme = "Cookies";
+            })
+            .AddCookie("Cookies", options =>
+            {
+                options.LoginPath = "/LoginPage";
+            });
             services.AddXaf(Configuration, builder =>
             {
                 builder.UseApplication<MiniCRM_KenilKhadelaBlazorApplication>();
@@ -38,6 +50,7 @@ namespace MiniCRM_KenilKhadela.Blazor.Server
                     .AddScheduler()
                     .AddNotifications()
                     .AddOffice()
+                    .AddDashboards()
                     .AddReports(options =>
                     {
                         options.EnableInplaceReports = true;
@@ -50,6 +63,12 @@ namespace MiniCRM_KenilKhadela.Blazor.Server
                     })
                     .Add<MiniCRM_KenilKhadela.Module.MiniCRM_KenilKhadelaModule>()
                     .Add<MiniCRM_KenilKhadelaBlazorModule>();
+                builder.Security.UseIntegratedMode(options =>
+                {
+                    options.RoleType = typeof(PermissionPolicyRole);
+                    options.UserType = typeof(PermissionPolicyUser);
+                })
+                .AddPasswordAuthentication();
                 builder.ObjectSpaceProviders
                     .AddXpo((serviceProvider, options) =>
                     {
@@ -89,6 +108,9 @@ namespace MiniCRM_KenilKhadela.Blazor.Server
             app.UseRequestLocalization();
             app.UseStaticFiles();
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
+            app.UseAntiforgery();
             app.UseXaf();
             app.UseEndpoints(endpoints =>
             {

@@ -12,6 +12,7 @@ using DevExpress.ExpressApp.Model;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
 using DevExpress.XtraRichEdit.Commands;
+using System.Reflection.Emit;
 
 namespace MiniCRM_KenilKhadela.Module.BusinessObjects;
 public enum ActivityDirection
@@ -27,7 +28,7 @@ public enum ActivityState
     Canceled = 2,
     Received = 3
 }
-[DefaultClassOptions]
+[NavigationItem(false)]
 //[ImageName("BO_Contact")]
 //[DefaultProperty("DisplayMemberNameForLookupEditorsOfThisType")]
 //[DefaultListViewOptions(MasterDetailMode.ListViewOnly, false, NewItemRowPosition.None)]
@@ -39,6 +40,21 @@ public class Activity : BaseObject {
     // https://docs.devexpress.com/CodeRushForRoslyn/118557
     public Activity(Session session)
         : base(session) {
+    }
+
+    [Browsable(false)]
+    [NonPersistent]
+    public string ImageNameForRow
+    {
+        get
+        {
+            if (this is Appointment)
+                return "BO_Appointment";
+            if (this is ActivityPhone)
+                return "BO_Phone";
+
+            return "BO_Unknown";
+        }
     }
 
     private string subject;
@@ -97,6 +113,7 @@ public class Activity : BaseObject {
     private Contact contact;
     [Association("Contact-Activities")]
     [VisibleInDetailView(false)]
+    [VisibleInListView(false)]
     public Contact Contact
     {
         get => contact;

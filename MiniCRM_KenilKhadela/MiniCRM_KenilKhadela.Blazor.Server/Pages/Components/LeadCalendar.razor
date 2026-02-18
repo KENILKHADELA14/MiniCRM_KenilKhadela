@@ -1,0 +1,225 @@
+﻿@using DevExpress.Blazor
+@using DevExpress.ExpressApp
+@using MiniCRM_KenilKhadela.Module.BusinessObjects
+@using System.Collections.ObjectModel
+@using System.Drawing
+@inject IObjectSpaceFactory ObjectSpaceFactory
+@implements IDisposable
+
+@if (DataStorage != null)
+{
+    <DxScheduler StartDate="@StartDate"
+                 DataStorage="@DataStorage"
+                 @bind-ActiveViewType="ActiveView"
+                 AppointmentInserted="OnAppointmentInserted"
+                 AppointmentUpdated="OnAppointmentUpdated"
+                 AppointmentRemoved="OnAppointmentRemoved"
+                 AllowEdit="true"
+                 CssClass="w-100 h-100"
+                 Style="min-height: 700px;">
+        <DxSchedulerDayView ShowWorkTimeOnly="false" TimeScale="@TimeSpan.FromMinutes(30)" />
+        <DxSchedulerWeekView ShowWorkTimeOnly="false" />
+        <DxSchedulerMonthView />
+    </DxScheduler>
+
+}
+
+else
+{
+    <p>Loading calendar...</p>
+}
+
+@code {
+
+    [Parameter] public List<Appointment> Appointments { get; set; }
+    [Parameter] public IObjectSpace ObjectSpace { get; set; }
+    private DxSchedulerDataStorage DataStorage { get; set; }
+    private IObjectSpace workingObjectSpace;
+    private ObservableCollection<Appointment> appointmentsCollection;
+    private DateTime StartDate = DateTime.Today;
+    private SchedulerViewType ActiveView = SchedulerViewType.Day;
+    public class SchedulerLabelEntity
+    {
+        public int Id { get; set; }
+        public string Caption { get; set; }
+        public Color Color { get; set; }
+        public SchedulerLabelEntity(int id, string caption, Color color)
+        {
+            Id = id; Caption = caption; Color = color;
+        }
+    }
+
+    private void RefreshSchedulerUI()
+    {
+        DataStorage?.RefreshData();             
+        InvokeAsync(StateHasChanged);          
+    }
+
+    protected override void OnInitialized()
+    {
+        workingObjectSpace = ObjectSpace ?? ObjectSpaceFactory.CreateObjectSpace(typeof(Appointment));
+        appointmentsCollection = new ObservableCollection<Appointment>();
+        InitializeDataStorage();
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        InitializeDataStorage();
+    }
+
+    private void InitializeDataStorage()
+    {
+        try
+        {
+            var appointments = Appointments ?? workingObjectSpace.GetObjects<Appointment>().ToList();
+
+            appointmentsCollection.Clear();
+            foreach (var apt in appointments)
+            {
+                appointmentsCollection.Add(apt);
+            }
+
+            if (DataStorage == null)
+            {
+                DataStorage = new DxSchedulerDataStorage
+                {
+                    AppointmentsSource = appointmentsCollection,
+                    AppointmentMappings = new DxSchedulerAppointmentMappings
+                    {
+                        Id = nameof(Appointment.AppointmentId),
+                        Start = nameof(Appointment.StartDate),
+                        End = nameof(Appointment.EndDate),
+                        Subject = nameof(Appointment.Subject),
+                        Description = nameof(Appointment.Description),
+                        AllDay = nameof(Appointment.AllDay)
+                        // LabelId = nameof(Appointment.Label)
+                    }
+                };
+            }
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+        }
+    }
+
+    private void RefreshAppointments()
+    {
+        try
+        {
+
+            workingObjectSpace.Refresh(); 
+            var appointments = workingObjectSpace.GetObjects<Appointment>().ToList();
+
+            appointmentsCollection.Clear();
+            foreach (var apt in appointments)
+            {
+                appointmentsCollection.Add(apt);
+            }
+
+            InvokeAsync(StateHasChanged);
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+        }
+    }
+
+    async Task OnAppointmentInserted(DxSchedulerAppointmentItem e)
+    {
+        try
+        {
+            var apt = workingObjectSpace.CreateObject<Appointment>();
+            apt.Subject = e.Subject ?? "No Subject";
+            apt.Description = e.Description ?? "";
+            apt.StartDate = e.Start;
+            apt.EndDate = e.End;
+            apt.AllDay = e.AllDay;
+            // apt.Label = Convert.ToInt32(e.LabelId ?? 0);
+
+            workingObjectSpace.CommitChanges();
+
+            RefreshAppointments();
+            appointmentsCollection.Add(apt);
+            RefreshSchedulerUI();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+        }
+
+        await Task.CompletedTask;
+    }
+
+    async Task OnAppointmentUpdated(DxSchedulerAppointmentItem e)
+    {
+        try
+        {
+            var apt = workingObjectSpace.GetObjectByKey<Appointment>(e.Id);
+            if (apt != null)
+            {
+                apt.Subject = e.Subject ?? "No Subject";
+                apt.Description = e.Description ?? "";
+                apt.StartDate = e.Start;
+                apt.EndDate = e.End;
+                apt.AllDay = e.AllDay;
+                // apt.Label = Convert.ToInt32(e.LabelId ?? 0);
+
+                workingObjectSpace.CommitChanges();
+
+                RefreshAppointments();
+                RefreshSchedulerUI();
+            }
+            else
+            {
+                Console.WriteLine($"Appointment with Id {e.Id} not found for update");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating appointment: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+        }
+
+        await Task.CompletedTask;
+    }
+
+    async Task OnAppointmentRemoved(DxSchedulerAppointmentItem e)
+    {
+        try
+        {
+            var apt = workingObjectSpace.GetObjectByKey<Appointment>(e.Id);
+
+            if (apt != null)
+            {
+                var subject = apt.Subject;
+                workingObjectSpace.Delete(apt);
+                workingObjectSpace.CommitChanges();
+
+                RefreshAppointments();
+                RefreshSchedulerUI();
+            }
+            else
+            {
+                Console.WriteLine($"Appointment with Id {e.Id} not found for deletion");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting appointment: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+        }
+
+        await Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+    }
+
+}

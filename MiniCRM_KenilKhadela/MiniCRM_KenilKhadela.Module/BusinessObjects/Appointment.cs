@@ -1,20 +1,21 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using DevExpress.Xpo;
-using DevExpress.ExpressApp;
-using System.ComponentModel;
-using System.Collections.Generic;
-using DevExpress.ExpressApp.DC;
+﻿using DevExpress.Charts.Native;
+using DevExpress.CodeParser;
 using DevExpress.Data.Filtering;
-using DevExpress.Persistent.Base;
+using DevExpress.ExpressApp;
+using DevExpress.ExpressApp.DC;
 using DevExpress.ExpressApp.Model;
+using DevExpress.ExpressApp.Scheduler;
+using DevExpress.Persistent.Base;
+using DevExpress.Persistent.Base.General;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
-using DevExpress.Persistent.Base.General;
-using DevExpress.ExpressApp.Scheduler;
-using DevExpress.Charts.Native;
-using DevExpress.CodeParser;
+using DevExpress.Xpo;
+using DevExpress.Xpo.DB;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
 
 namespace MiniCRM_KenilKhadela.Module.BusinessObjects;
 public enum Reasons
@@ -27,26 +28,37 @@ public enum Reasons
     OutOfOffice=5
 }
 [DefaultClassOptions]
-public class Appointment : Activity,IEvent {
+[NavigationItem("Activity")]
+[ImageName("BO_Appointment")]
+public class Appointment : Activity {
 
     public Appointment(Session session)
         : base(session) {
     }
+    public Appointment() : base(new Session()) { }
     public override void AfterConstruction() {
         base.AfterConstruction();
         this.Type = 0;
-        this.StartOn = DateTime.Now;
-        this.EndOn = DateTime.Now.AddHours(1);
+        this.StartDate = DateTime.Now;
+        this.EndDate = DateTime.Now.AddHours(1);
+        if (AllDay)
+        {
+            this.StartDate = DateTime.Today;
+            this.EndDate = DateTime.Today.AddDays(1).AddSeconds(-1);
+        }
     }
 
 
-    [Browsable(false)]
-    public object AppointmentId => Oid;
+        [Browsable(false)]
+    public object AppointmentId{
+        get => Oid;
+        set { }
+    }
 
-    public DateTime StartOn { get => StartDate; set => StartDate = value; }
-    public DateTime EndOn { get => EndDate; set => EndDate = value; }
-    string IEvent.Subject { get => Subject; set => Subject = value; }
-    string IEvent.Description { get => Description; set => Description = value; }
+    //[PersistentAlias(nameof(StartDate))]
+    //public DateTime StartOn { get => StartDate; set => StartDate = value; }
+    //[PersistentAlias(nameof(EndDate))]
+    //public DateTime EndOn { get => EndDate; set => EndDate = value; }
 
     private int type;
     public int Type
@@ -60,7 +72,24 @@ public class Appointment : Activity,IEvent {
     public bool AllDay
     {
         get => allDay;
-        set => SetPropertyValue(nameof(AllDay), ref allDay, value);
+        set
+        {
+            if (SetPropertyValue(nameof(AllDay), ref allDay, value))
+            {
+                if (!IsLoading && !IsSaving)
+                {
+                    if (value)
+                    {
+                        this.StartDate = this.StartDate.Date;
+                        this.EndDate = this.StartDate.AddDays(1).AddSeconds(-1);
+                    }
+                    else
+                    {
+                        this.EndDate = this.StartDate.AddHours(1);
+                    }
+                }
+            }
+        }
     }
 
     private string resourceId;
@@ -71,8 +100,14 @@ public class Appointment : Activity,IEvent {
         set => SetPropertyValue(nameof(ResourceId), ref resourceId, value);
     }
 
+    private string recurrenceInfoXml;
     [Size(SizeAttribute.Unlimited)]
-    public string RecurrenceInfoXml { get; set; }
+    public string RecurrenceInfoXml
+    {
+        get => recurrenceInfoXml;
+        set => SetPropertyValue(nameof(RecurrenceInfoXml), ref recurrenceInfoXml, value);
+    }
+
 
     private int label;
     public int Label
@@ -81,12 +116,12 @@ public class Appointment : Activity,IEvent {
         set => SetPropertyValue(nameof(Label), ref label, value);
     }
 
-    private int status;
-    public int Status
-    {
-        get => status;
-        set => SetPropertyValue(nameof(Status), ref status, value);
-    }
+    //private int status;
+    //public int Status
+    //{
+    //    get => status;
+    //    set => SetPropertyValue(nameof(Status), ref status, value);
+    //}
 
 
     private Priority priority;

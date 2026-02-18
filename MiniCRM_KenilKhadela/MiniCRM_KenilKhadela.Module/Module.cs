@@ -7,7 +7,6 @@ using DevExpress.ExpressApp.Model;
 using DevExpress.ExpressApp.Model.Core;
 using DevExpress.ExpressApp.Model.DomainLogics;
 using DevExpress.ExpressApp.Model.NodeGenerators;
-using DevExpress.ExpressApp.Scheduler.Blazor;
 using DevExpress.ExpressApp.Scheduler;
 using DevExpress.ExpressApp.Updating;
 using DevExpress.ExpressApp.Xpo;
@@ -17,6 +16,9 @@ using DevExpress.Xpo;
 using Microsoft.CodeAnalysis.Operations;
 using DevExpress.Persistent.Base.General;
 using MiniCRM_KenilKhadela.Module.BusinessObjects;
+using DevExpress.ExpressApp.Security;
+using DevExpress.Persistent.BaseImpl.AuditTrail.Services;
+using DevExpress.Persistent.AuditTrail;
 
 namespace MiniCRM_KenilKhadela.Module
 {
@@ -42,7 +44,9 @@ namespace MiniCRM_KenilKhadela.Module
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.ReportsV2.ReportsModuleV2));
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Validation.ValidationModule));
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Scheduler.SchedulerModuleBase));
-            RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Scheduler.Blazor.SchedulerBlazorModule));
+            RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Dashboards.DashboardsModule));
+            //RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.DashboardView);
+            RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.AuditTrail.AuditTrailModule));
         }
         public override IEnumerable<ModuleUpdater> GetModuleUpdaters(IObjectSpace objectSpace, Version versionFromDB)
         {
@@ -52,7 +56,44 @@ namespace MiniCRM_KenilKhadela.Module
         public override void Setup(XafApplication application)
         {
             base.Setup(application);
+            application.LoggedOn += Application_LoggedOn;
+            application.LoggingOff += Application_LoggedOff;
             // Manage various aspects of the application UI and behavior at the module level.
+        }
+        private void Application_LoggedOff(object sender, EventArgs e)
+        {
+            string currentUserName = SecuritySystem.CurrentUserName;
+            if (string.IsNullOrEmpty(currentUserName)) return;
+
+            var app = sender as XafApplication;
+
+            using (IObjectSpace os = app.CreateObjectSpace(typeof(LoginHistory)))
+            {
+                var lastLogin = os.GetObjectsQuery<LoginHistory>()
+                    .Where(i => i.UserName == currentUserName && i.LogoutTime == null)
+                    .OrderByDescending(p => p.LoginTime)
+                    .FirstOrDefault();
+
+                if (lastLogin != null)
+                {
+                    lastLogin.LogoutTime = DateTime.Now;
+                    lastLogin.Operation = "LoggedOff";
+                    os.CommitChanges();
+                }
+            }
+        }
+
+
+        private void Application_LoggedOn(object sender, LogonEventArgs e)
+        {
+            var app= sender as XafApplication;
+            using (var os = app.CreateObjectSpace()) {
+                var history = os.CreateObject<LoginHistory>();
+                history.UserName = SecuritySystem.CurrentUserName ;
+                history.Operation = "LoggedOn";
+                history.LoginTime = DateTime.Now;
+                os.CommitChanges();
+            }
         }
         public override void CustomizeTypesInfo(ITypesInfo typesInfo)
         {

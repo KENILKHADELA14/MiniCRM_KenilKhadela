@@ -28,9 +28,8 @@ public enum Priority
 //    Incoming=0,
 //    Outgoing=1
 //}
-
-[DefaultClassOptions]
-//[ImageName("BO_Contact")]
+[NavigationItem(false)]
+[ImageName("BO_Phone")]
 //[DefaultProperty("DisplayMemberNameForLookupEditorsOfThisType")]
 //[DefaultListViewOptions(MasterDetailMode.ListViewOnly, false, NewItemRowPosition.None)]
 //[Persistent("DatabaseTableName")]
@@ -55,31 +54,33 @@ public class ActivityPhone : Activity {
         set => SetPropertyValue(nameof(Priority), ref priority, value);
     }
 
-    //private string subject;
-    //[Size(SizeAttribute.Unlimited)]
-    //public string Subject
-    //{
-    //    get => subject;
-    //    set => SetPropertyValue(nameof(Subject), ref subject, value);
-    //}
-
-    //private string description;
-    //[Size(SizeAttribute.Unlimited)]
-    //public string Description
-    //{
-    //    get => description;
-    //    set => SetPropertyValue(nameof(Description), ref description, value);
-    //}
+    private int duration;
+    [XafDisplayName("Actual Duration Minutes")]
+    public int Duration
+    {
+        get => duration;
+        set => SetPropertyValue(nameof(Duration), ref duration, value);
+    }
 
     private string phone;
     [XafDisplayName("Number")]
     public string Phone
     {
-        get=> phone;
-        set=> SetPropertyValue(nameof(Phone), ref phone, value);
+        get => phone;
+        set => SetPropertyValue(nameof(Phone), ref phone, value);
     }
 
-    
-   
+    private Lead from;
+    public Lead From
+    {
+        get => from;
+        set => SetPropertyValue(nameof(From), ref from, value);
+    }
 
+    private Lead to;
+    public Lead To
+    {
+        get=> to;
+        set => SetPropertyValue(nameof(To), ref to, value);
+    }
 }

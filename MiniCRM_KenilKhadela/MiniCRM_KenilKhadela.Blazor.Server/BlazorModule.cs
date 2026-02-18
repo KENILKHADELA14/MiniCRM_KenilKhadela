@@ -10,6 +10,8 @@ using DevExpress.ExpressApp.Model.NodeGenerators;
 using DevExpress.ExpressApp.Updating;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.ExpressApp.Scheduler.Blazor;
+using MiniCRM_KenilKhadela.Blazor.Server.Editors;
+using MiniCRM_KenilKhadela.Module.BusinessObjects;
 
 namespace MiniCRM_KenilKhadela.Blazor.Server
 {
@@ -20,6 +22,7 @@ namespace MiniCRM_KenilKhadela.Blazor.Server
         public MiniCRM_KenilKhadelaBlazorModule()
         {
             RequiredModuleTypes.Add(typeof(SchedulerBlazorModule));
+            RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.StateMachine.StateMachineModule));
         }
         public override IEnumerable<ModuleUpdater> GetModuleUpdaters(IObjectSpace objectSpace, Version versionFromDB)
         {

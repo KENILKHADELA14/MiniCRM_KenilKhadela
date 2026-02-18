@@ -1,40 +1,20 @@
 ﻿@using MiniCRM_KenilKhadela.Blazor.Server.Editors.Lead_StatusBar
 @using MiniCRM_KenilKhadela.Module.BusinessObjects
 @using static MiniCRM_KenilKhadela.Module.BusinessObjects.Lead
+@using DevExpress.ExpressApp
 @implements IDisposable
-<div class="state-machine">
-    <DxButton CssClass="state-machine-btn" Text="State Machine"
-              IconCssClass="dx-icon-settings"
-              Enabled="@IsCurrentStageSelected"
-              Click="ToggleOptions" />
 
-    @if (showOptions && IsCurrentStageSelected)
-    {
-        <div class="state-machine-options">
-            @if (PreviousStage.HasValue)
-            {
-                <DxButton CssClass="nav-btn prev" Text="@PreviousStage.Value.ToString()" Click="MovePrevious" IconCssClass="dx-icon-chevronleft" />
-            }
-            @if (NextStage.HasValue)
-            {
-                <DxButton CssClass="nav-btn next" Text="@NextStage.Value.ToString()" Click="MoveNext" IconCssClass="dx-icon-chevronright" />
-            }
-        </div>
-    }
-</div>
 <div class="lead-status-bar">
-    
     <div class="status-container">
         @foreach (LeadProcessStageEnum stage in Enum.GetValues(typeof(LeadProcessStageEnum)))
         {
             <div class="status-item
-                    @(IsCompleted(stage) ? "completed" : "")
-                    @(SelectedStage == stage ? "selected" : "")"
-                 @onclick="() => OnStageClicked(stage)">
+                        @(IsCompleted(stage) ? "completed" : "")
+                        @(SelectedStage == stage ? "selected" : "")">
 
                 <input type="checkbox"
                        checked="@IsCompleted(stage)"
-                       disabled />
+                       class="read-only-checkbox" />
 
                 <span>@stage</span>
             </div>
@@ -42,30 +22,60 @@
             @if (stage != LeadProcessStageEnum.Closed)
             {
                 <span class="arrow">→</span>
+        
+                <LeadStatusBar />
             }
         }
     </div>
-
 </div>
 
 @code {
-
     [Parameter]
     public LeadStatusBarViewItem ViewItem { get; set; }
 
     private Lead Lead => ViewItem?.View?.CurrentObject as Lead;
-
     private LeadProcessStageEnum? SelectedStage;
-    private bool showOptions;
 
-
-    private void OnStageClicked(LeadProcessStageEnum stage)
+    protected override void OnInitialized()
     {
-        SelectedStage = stage;
-        showOptions = false; 
-        StateHasChanged();
+        base.OnInitialized();
+        SubscribeToEvents();
+        UpdateSelectedStage();
     }
 
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (!firstRender)
+        {
+            UpdateSelectedStage();
+        }
+    }
+
+    private void SubscribeToEvents()
+    {
+        if (ViewItem?.View?.ObjectSpace != null)
+        {
+            ViewItem.View.ObjectSpace.ObjectChanged += ObjectSpace_ObjectChanged;
+        }
+    }
+
+    private void ObjectSpace_ObjectChanged(object sender, ObjectChangedEventArgs e)
+    {
+        if (e.Object == Lead && e.PropertyName == nameof(Lead.LeadProcessStage))
+        {
+            UpdateSelectedStage();
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void UpdateSelectedStage()
+    {
+        if (Lead != null)
+        {
+            SelectedStage = Lead.LeadProcessStage;
+        }
+    }
 
     private bool IsCompleted(LeadProcessStageEnum stage)
     {
@@ -78,66 +88,19 @@
         return Lead.LeadProcessStage >= stage;
     }
 
-    private bool IsCurrentStageSelected =>
-        SelectedStage != null &&
-        Lead != null &&
-        SelectedStage == Lead.LeadProcessStage;
-
-
-    private void ToggleOptions()
+    public void RefreshUI()
     {
-        if (!IsCurrentStageSelected)
-            return;
-
-        showOptions = !showOptions;
+        UpdateSelectedStage();
+        InvokeAsync(StateHasChanged);
     }
 
-    private LeadProcessStageEnum? NextStage => Lead != null && Lead.LeadProcessStage < LeadProcessStageEnum.Closed ?
-    Lead.LeadProcessStage + 1 : null;
-
-    private LeadProcessStageEnum? PreviousStage => Lead != null && Lead.LeadProcessStage > LeadProcessStageEnum.Open ?
-    Lead.LeadProcessStage - 1 : null;
-
-
-
-    // private bool CanShowNext =>
-    //     Lead != null &&
-    //     Lead.LeadProcessStage < LeadProcessStageEnum.Closed;
-
-    // private bool CanShowPrevious =>
-    //     Lead != null &&
-    //     Lead.LeadProcessStage > LeadProcessStageEnum.Open;
-
-
-    private void MoveNext()
+    public void Dispose()
     {
-        if (Lead == null || Lead.LeadProcessStage == LeadProcessStageEnum.Closed)
-            return;
-
-        Lead.LeadProcessStage = NextStage.Value;
-
-        Commit();
+        if (ViewItem?.View?.ObjectSpace != null)
+        {
+            ViewItem.View.ObjectSpace.ObjectChanged -= ObjectSpace_ObjectChanged;
+        }
     }
-
-    private void MovePrevious()
-    {
-        if (Lead == null || Lead.LeadProcessStage == LeadProcessStageEnum.Open)
-            return;
-
-        Lead.LeadProcessStage = PreviousStage.Value;
-
-        Commit();
-    }
-
-    private void Commit()
-    {
-        ViewItem.View.ObjectSpace.CommitChanges();
-        SelectedStage = Lead.LeadProcessStage;
-        showOptions = false;
-        StateHasChanged();
-    }
-
-    public void Dispose() { }
 }
 
 <style>
@@ -169,71 +132,46 @@
         transition: all 0.3s ease;
     }
 
-        .status-item.active {
-            background-color: #e7f3ff;
-            border-color: #0d6efd;
+        .status-item.completed {
+            background-color: #d1e7dd;
+            border-color: #0f5132;
+        }
+
+        .status-item.selected {
+            background-color: #cfe2ff;
+            border-color: #084298;
+            font-weight: 600;
         }
 
         .status-item input[type="checkbox"] {
             width: 20px;
             height: 20px;
-            cursor: pointer;
             accent-color: #0d6efd;
         }
 
-        .status-item label {
-            margin: 0;
-            cursor: pointer;
+        .status-item span {
             font-weight: 500;
             color: #495057;
             user-select: none;
         }
 
-        .status-item.active label {
-            color: #0d6efd;
+        .status-item.selected span {
+            color: #084298;
             font-weight: 600;
         }
 
-    .status-arrow {
+        .status-item.completed span {
+            color: #0f5132;
+        }
+
+    .arrow {
         font-size: 24px;
         color: #adb5bd;
         font-weight: bold;
     }
 
-    .status-item input[type="checkbox"]:disabled {
-        cursor: not-allowed;
-        opacity: 0.5;
-    }
-
-    .state-machine{
-        display:flex;
-        align-items:center;
-        gap:10px;
-    }
-
-    .state-machine-btn{
-        width:100px;
-        height:38px;
-        background-color:black;
-    }
-
-    .state-machine-options{
-        display:flex;
-        gap:8px;
-        padding:6px 10px;
-        background:white;
-        box-shadow:0 4px 12px;
-    }
-
-    .nav-btn{
-        width:100px;
-        height:36px;
-    }
-
-    .nav-btn.prev{
-        background:black;
-    }
-    .nav-btn.next{
-        background:black;
+    .read-only-checkbox {
+        pointer-events: none;
+        cursor: default;
     }
 </style>

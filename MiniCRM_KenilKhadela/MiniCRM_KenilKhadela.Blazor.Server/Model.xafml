@@ -1,9 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Application>
-  <NavigationItems NavigationStyle="Accordion" />
+  <NavigationItems NavigationStyle="Accordion">
+    <Items>
+      <Item Id="Default">
+        <Items>
+          <Item Id="MyDetails" Removed="True" />
+          <Item Id="PermissionPolicyRole_ListView" Removed="True" />
+          <Item Id="PermissionPolicyUser_ListView" Removed="True" />
+        </Items>
+      </Item>
+      <Item Id="Security" IsNewNode="True">
+        <Items IsNewNode="True">
+          <Item Id="MyDetails" ViewId="PermissionPolicyUser_DetailView" ObjectKey="@CurrentUserID" Caption="My Details" ImageName="BO_MyDetails" IsNewNode="True" />
+          <Item Id="PermissionPolicyRole_ListView" ViewId="PermissionPolicyRole_ListView" ObjectKey="" IsNewNode="True" />
+          <Item Id="PermissionPolicyUser_ListView" ViewId="PermissionPolicyUser_ListView" ObjectKey="" IsNewNode="True" />
+        </Items>
+      </Item>
+    </Items>
+  </NavigationItems>
   <Options UIType="TabbedMDI" FormStyle="Ribbon" RestoreTabbedMdiLayout="True" ShowTabImage="True" VirtualScrollingEnabled="True" />
   <SchemaModules>
-    <SchemaModule Name="SystemModule" Version="25.2.3.0" IsNewNode="True" />
+    <SchemaModule Name="SchedulerBlazorModule" Version="25.2.4.0" IsNewNode="True" />
+    <SchemaModule Name="SchedulerModuleBase" Version="25.2.4.0" IsNewNode="True" />
+    <SchemaModule Name="SystemModule" Version="25.2.4.0" IsNewNode="True" />
   </SchemaModules>
   <Views>
     <DetailView Id="Lead_DetailView">

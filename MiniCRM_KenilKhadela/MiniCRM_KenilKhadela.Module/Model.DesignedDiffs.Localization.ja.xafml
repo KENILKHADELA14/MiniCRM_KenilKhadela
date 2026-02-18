@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application>
+  <Localization>
+    <LocalizationGroup Name="Enums">
+      <LocalizationGroup Name="MiniCRM_KenilKhadela.Module.BusinessObjects.Lead+LeadProcessStageEnum">
+        <LocalizationItem Name="Open" Value="開く&#xA;" />
+      </LocalizationGroup>
+    </LocalizationGroup>
+  </Localization>
+  <NavigationItems>
+    <Items>
+      <Item Id="Sales" Caption="販売">
+        <Items>
+          <Item Id="Lead_ListView" Caption="鉛" />
+        </Items>
+      </Item>
+    </Items>
+  </NavigationItems>
+  <Views>
+    <DetailView Id="Lead_DetailView" Caption="Lead見込み客">
+      <Items>
+        <PropertyEditor Id="FirstName" Caption="ファーストネーム" />
+        <PropertyEditor Id="LastName" Caption="姓" />
+        <PropertyEditor Id="Subject" Caption="件名" />
+      </Items>
+      <Layout>
+        <LayoutGroup Id="Main">
+          <LayoutGroup Id="SimpleEditors">
+            <TabbedGroup Id="Item1">
+              <LayoutGroup Id="Lead">
+                <LayoutGroup Id="Autob7c3a340-472b-42d5-95e5-1ac605413eb2" Caption="要約">
+                  <LayoutGroup Id="Auto2995c95c-30be-457d-95f7-946af476fbf9">
+                    <LayoutGroup Id="Auto0d51d787-dfab-4457-8df9-59bbd9298b10">
+                      <LayoutGroup Id="Auto72110154-37e1-48a7-bb4f-4afb7a2f6eef">
+                        <LayoutGroup Id="Activities_Group" Caption="Activities" />
+                      </LayoutGroup>
+                    </LayoutGroup>
+                  </LayoutGroup>
+                </LayoutGroup>
+              </LayoutGroup>
+              <LayoutGroup Id="Item2">
+                <TabbedGroup Id="Item8">
+                  <LayoutGroup Id="Item9">
+                    <LayoutGroup Id="Auto2f4cc95e-8dd3-414c-9b47-45ac6088fba0" Caption="Auto2f4cc95e-8dd3-414c-9b47-45ac6088fba0(51)" />
+                  </LayoutGroup>
+                </TabbedGroup>
+              </LayoutGroup>
+            </TabbedGroup>
+          </LayoutGroup>
+        </LayoutGroup>
+      </Layout>
+    </DetailView>
+    <ListView Id="Lead_ListView">
+      <Columns>
+        <ColumnInfo Id="Subject" Caption="件名" />
+        <ColumnInfo Id="FirstName" Caption="ファーストネーム" />
+        <ColumnInfo Id="LastName" Caption="姓" />
+      </Columns>
+    </ListView>
+  </Views>
+</Application>

@@ -14,7 +14,7 @@ using DevExpress.Persistent.Validation;
 
 namespace MiniCRM_KenilKhadela.Module.BusinessObjects;
 
-[DefaultClassOptions]
+[NavigationItem(false)]
 public class TransactionCurrency : BaseObject {
     public TransactionCurrency(Session session)
         : base(session) {

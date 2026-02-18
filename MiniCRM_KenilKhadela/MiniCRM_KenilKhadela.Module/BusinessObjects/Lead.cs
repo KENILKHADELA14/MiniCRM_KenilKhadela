@@ -1,24 +1,29 @@
-﻿using System;
+﻿using DevExpress.Data.Filtering;
+using DevExpress.ExpressApp;
+using DevExpress.ExpressApp.DC;
+using DevExpress.ExpressApp.Editors;
+using DevExpress.ExpressApp.Model;
+using DevExpress.ExpressApp.Security;
+using DevExpress.ExpressApp.StateMachine;
+using DevExpress.ExpressApp.StateMachine.Xpo;
+using DevExpress.ExpressApp.Xpo;
+using DevExpress.Persistent.Base;
+using DevExpress.Persistent.BaseImpl;
+using DevExpress.Persistent.BaseImpl.PermissionPolicy;
+using DevExpress.Persistent.Validation;
+using DevExpress.Xpo;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
-using DevExpress.Xpo;
-using DevExpress.ExpressApp;
-using System.ComponentModel;
-using System.Collections.Generic;
-using DevExpress.ExpressApp.DC;
-using DevExpress.Data.Filtering;
-using DevExpress.Persistent.Base;
-using DevExpress.ExpressApp.Model;
-using DevExpress.Persistent.BaseImpl;
-using DevExpress.Persistent.Validation;
-using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 namespace MiniCRM_KenilKhadela.Module.BusinessObjects;
 
 [DefaultClassOptions]
 [NavigationItem("Sales")]
 [ImageName("BO_Lead")]
-public class Lead : BaseObject
+public class Lead : BaseObject , IStateMachineProvider
 {
     public Lead(Session session)
         : base(session)
@@ -36,10 +41,10 @@ public class Lead : BaseObject
         CreatedOn = DateTime.Now;
     }
 
-    [PersistentAlias("concat(FirstName, '(',LastName,')')")]
+    [PersistentAlias("concat(CompanyName,FirstName,LastName)")]
     [ReadOnly(true)]
     [VisibleInListView(false)]
-    public string FullName => $"{FirstName} {LastName}";
+    public string FullName => Convert.ToString(EvaluateAlias(nameof(FullName)));
 
     private string firstName;
     [RuleRequiredField]
@@ -71,6 +76,9 @@ public class Lead : BaseObject
         
     private DateTime? createdOn;
     [XafDisplayName(nameof(CreatedOn))]
+    [ModelDefault("EditMask", "G")]
+    [ModelDefault("DisplayFormat", "G")]
+    [ModelDefault("EditMaskType", "DateTime")]
     public DateTime? CreatedOn
     {
         get => createdOn;
@@ -78,6 +86,9 @@ public class Lead : BaseObject
     }
 
     private DateTime? modifiedOn;
+    [ModelDefault("EditMask", "G")]
+    [ModelDefault("DisplayFormat", "G")]
+    [ModelDefault("EditMaskType", "DateTime")]
     [XafDisplayName(nameof(ModifiedOn))]
     public DateTime? ModifiedOn
     {
@@ -125,6 +136,18 @@ public class Lead : BaseObject
     {
         get => owner;
         set => SetPropertyValue(nameof(Owner), ref owner, value);
+    }
+
+    private PermissionPolicyUser createdBy;
+    public PermissionPolicyUser CreatedBy { 
+        get => createdBy; 
+        set => SetPropertyValue(nameof(CreatedBy), ref createdBy, value); 
+    }
+
+    private PermissionPolicyUser modifiedBy; public PermissionPolicyUser ModifiedBy
+    {
+        get => modifiedBy; 
+        set => SetPropertyValue(nameof(ModifiedBy), ref modifiedBy, value); 
     }
 
     private string title;
@@ -196,7 +219,16 @@ public class Lead : BaseObject
     {
 
         get => leadProcessStage;
-        set => SetPropertyValue(nameof(LeadProcessStage), ref leadProcessStage, value);
+        set {
+            try
+            {
+                leadProcessStage = value;
+            }
+            catch(System.NullReferenceException ex)
+            {
+                leadProcessStage = value;
+            }
+        }
 
     }
 
@@ -273,11 +305,43 @@ public class Lead : BaseObject
     [VisibleInListView(false)]
     public Opportunities Opportunity { get; set; }
 
+    public IList<IStateMachine> GetStateMachines()
+    {
+        List<IStateMachine> result = new();
+
+        var stateMachines = Session.FindObject<XpoStateMachine>(
+            new BinaryOperator("Name", "Change Lead Status"));
+
+        if (stateMachines != null)
+        {
+            result.Add(stateMachines);
+        }
+        var os = XPObjectSpace.FindObjectSpaceByObject(this);
+        if (os != null)
+        {
+            result.Add(new LeadStatusStateMachine(os));
+        }
+
+        return result;
+    }
+
     protected override void OnSaving()
     {
         base.OnSaving();
 
         if (Session.IsNewObject(this)) return;
+        if(SecuritySystem.CurrentUser is PermissionPolicyUser user)
+        {
+            var currentUser = Session.GetObjectByKey<PermissionPolicyUser>(user.Oid);
+            if (Session.IsNewObject(this))
+            {
+                CreatedOn = DateTime.Now;
+                CreatedBy = currentUser;
+            }
+
+            ModifiedOn = DateTime.Now;
+            ModifiedBy = currentUser;
+        }
 
         if(LeadStatus==LeadStatusEnum.Qualified && !IsQualifiedProcessed)
         {
@@ -286,6 +350,19 @@ public class Lead : BaseObject
         }
     }
 
+    private XPCollection<AuditDataItemPersistent> auditTrail;
+    [CollectionOperationSet(AllowAdd = false, AllowRemove = false)]
+    public XPCollection<AuditDataItemPersistent> AuditTrail
+    {
+        get
+        {
+            if (auditTrail == null)
+            {
+                auditTrail = AuditedObjectWeakReference.GetAuditTrail(Session, this);
+            }
+            return auditTrail;
+        }
+    }
     private void CreateQualifiedObjects()
     {
         Account = new Accounts(Session)

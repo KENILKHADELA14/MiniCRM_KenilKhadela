@@ -22,8 +22,16 @@ public class Contact : BaseObject {
     public Contact(Session session)
         : base(session) {
     }
-    public override void AfterConstruction() {
+    public override void AfterConstruction()
+    {
         base.AfterConstruction();
+        if (SecuritySystem.CurrentUser is PermissionPolicyUser user)
+        {
+            Owner = Session.GetObjectByKey<PermissionPolicyUser>(user.Oid);
+            createdBy = Session.GetObjectByKey<PermissionPolicyUser>(user.Oid);
+            modifiedBy = Session.GetObjectByKey<PermissionPolicyUser>(user.Oid);
+        }
+        CreatedOn = DateTime.Now;
     }
 
     private string firstName;
@@ -163,6 +171,32 @@ public class Contact : BaseObject {
     {
         get => modifiedOn;
         set => SetPropertyValue(nameof(ModifiedOn), ref modifiedOn, value);
+    }
+
+    private PermissionPolicyUser createdBy;
+    public PermissionPolicyUser CreatedBy
+    {
+        get => createdBy;
+        set => SetPropertyValue(nameof(CreatedBy), ref createdBy, value);
+    }
+    private PermissionPolicyUser modifiedBy; public PermissionPolicyUser ModifiedBy
+    {
+        get => modifiedBy;
+        set => SetPropertyValue(nameof(ModifiedBy), ref modifiedBy, value);
+    }
+
+    private XPCollection<AuditDataItemPersistent> auditTrail;
+    [CollectionOperationSet(AllowAdd = false, AllowRemove = false)]
+    public XPCollection<AuditDataItemPersistent> AuditTrail
+    {
+        get
+        {
+            if (auditTrail == null)
+            {
+                auditTrail = AuditedObjectWeakReference.GetAuditTrail(Session, this);
+            }
+            return auditTrail;
+        }
     }
 
     [Association("Contact-Opportunities")]
