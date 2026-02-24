@@ -1,0 +1,459 @@
+﻿@using MiniCRM_KenilKhadela.Module.BusinessObjects
+@using System.Linq
+@implements IDisposable
+
+<div class="activity-timeline-wrapper">
+    @if (State?.Activities != null && State.Activities.Any())
+    {
+        <div class="activity-timeline-container">
+            @foreach (var activity in State.Activities.OrderByDescending(a => a.StartDate).Take(4))
+            {
+                var isSelected = SelectedActivities?.Contains(activity) ?? false;
+                <div class="timeline-item @(isSelected ? "selected" : "")"
+                     @key="activity.Oid"
+                     @onclick="() => HandleActivityClick(activity)"
+                     @onclick:stopPropagation="false">
+                    <div class="timeline-connector">
+                        <div class="timeline-dot">
+                            @if (activity is Appointment)
+                            {
+                                <i class="dx-icon-event"></i>
+                            }
+                            else if (activity is ActivityPhone)
+                            {
+                                <i class="dx-icon-tel"></i>
+                            }
+                        </div>
+                        <div class="timeline-line"></div>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="activity-card">
+                            <div class="activity-card-header">
+                                <input type="checkbox"
+                                       class="activity-checkbox"
+                                       checked="@isSelected"
+                                       @onclick:stopPropagation="true"
+                                       @onchange="(e) => HandleCheckboxChange(activity, (bool)e.Value)" />
+                                <div class="activity-icon-badge">
+                                    @if (activity is Appointment)
+                                    {
+                                        <i class="dx-icon-event"></i>
+                                    }
+                                    else if (activity is ActivityPhone)
+                                    {
+                                        <i class="dx-icon-tel"></i>
+                                    }
+                                </div>
+                                <div class="activity-info">
+                                    <h6 class="activity-title">@activity.Subject</h6>
+                                    <span class="activity-date">
+                                        @activity.StartDate.ToString("M/d/yyyy")<br />
+                                        @activity.StartDate.ToString("h:mm tt")
+                                    </span>
+                                </div>
+                                <button class="btn-edit"
+                                        @onclick:stopPropagation="true"
+                                        @onclick="() => HandleEdit(activity)">
+                                    <i class="dx-icon-edit"></i>
+                                </button>
+                            </div>
+                            @if (!string.IsNullOrEmpty(activity.Description))
+                            {
+                                <div class="activity-card-body">
+                                    <p>@activity.Description</p>
+                                </div>
+                            }
+                            <div class="activity-card-footer">
+                                <span class="activity-badge badge-@(GetStateClass(activity.State))">
+                                    @activity.State
+                                </span>
+                                <span class="activity-type-label">
+                                    @if (activity is Appointment)
+                                    {
+                                        <i class="dx-icon-event"></i>
+                                        <text>Appointment</text>
+                                    }
+                                    else if (activity is ActivityPhone phone)
+                                    {
+                                        <i class="dx-icon-tel"></i>
+                                        <text>Phone Call</text>
+                                        @if (phone.Duration > 0)
+                                        {
+                                            <text> - @phone.Duration min</text>
+                                        }
+                                    }
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="timeline-empty-state">
+            <i class="dx-icon-event"></i>
+            <p>No activities</p>
+            <span>Click "New" or "Link" to add activities</span>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public ActivityListState State { get; set; }
+
+    [Parameter]
+    public List<Activity> SelectedActivities { get; set; }
+
+    [Parameter]
+    public Action<Activity> OnActivityClick { get; set; }
+
+    [Parameter]
+    public Action<Activity, bool> OnActivitySelect { get; set; }
+
+    
+    private ActivityListState _prevState;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if(_prevState != null)
+            _prevState.OnChanged -= HandleStateChanged;
+
+        if (State != null)
+            State.OnChanged += HandleStateChanged;
+
+        _prevState = State;
+
+    }
+
+    private void HandleStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        if (_prevState != null)
+            _prevState.OnChanged -= HandleStateChanged;
+
+    }
+
+    private void HandleActivityClick(Activity activity)
+    {
+        var isCurrentlySelected = SelectedActivities?.Contains(activity) ?? false;
+        HandleCheckboxChange(activity, !isCurrentlySelected);
+    }
+
+    private void HandleEdit(Activity activity)
+    {
+        OnActivityClick?.Invoke(activity);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleCheckboxChange(Activity activity, bool isChecked)
+    {
+        OnActivitySelect?.Invoke(activity, isChecked);
+    }
+
+    private string GetStateClass(ActivityState state)
+    {
+        return state switch
+        {
+            ActivityState.Open => "open",
+            ActivityState.Made => "made",
+            ActivityState.Received => "received",
+            ActivityState.Canceled => "canceled",
+            _ => "default"
+        };
+    }
+}
+
+<style>
+    .activity-timeline-wrapper {
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+        background: #ffffff;
+        padding: 20px 16px;
+    }
+
+    .activity-timeline-container {
+        position: relative;
+    }
+
+    .timeline-item {
+        display: flex;
+        gap: 0;
+        margin-bottom: 20px;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.2s;
+    }
+
+        .timeline-item.selected {
+            background: #f0f6ff;
+            margin-left: -8px;
+            margin-right: -8px;
+            padding-left: 8px;
+            padding-right: 8px;
+            border-radius: 4px;
+        }
+
+        .timeline-item:last-child .timeline-line {
+            display: none;
+        }
+
+    .timeline-connector {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex-shrink: 0;
+        width: 40px;
+        padding-top: 4px;
+    }
+
+    .timeline-dot {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #e7f3ff;
+        border: 2px solid #0078d4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0078d4;
+        font-size: 14px;
+        z-index: 2;
+        flex-shrink: 0;
+        transition: all 0.2s;
+    }
+
+    .timeline-item:hover .timeline-dot,
+    .timeline-item.selected .timeline-dot {
+        background: #0078d4;
+        color: white;
+        transform: scale(1.1);
+    }
+
+    .timeline-line {
+        width: 2px;
+        flex: 1;
+        background: #e1e1e1;
+        margin-top: 4px;
+        min-height: 20px;
+    }
+
+    .timeline-content {
+        flex: 1;
+        padding-left: 12px;
+        padding-top: 0;
+    }
+
+    .activity-card {
+        background: #fafafa;
+        border: 1px solid #e1e1e1;
+        border-radius: 4px;
+        transition: all 0.2s;
+        overflow: hidden;
+    }
+
+    .timeline-item:hover .activity-card,
+    .timeline-item.selected .activity-card {
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-color: #0078d4;
+    }
+
+    .activity-card-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 14px;
+        background: #ffffff;
+        border-bottom: 1px solid #e1e1e1;
+    }
+
+    .activity-checkbox {
+        margin-top: 6px;
+        cursor: pointer;
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+    }
+
+    .activity-icon-badge {
+        width: 28px;
+        height: 28px;
+        border-radius: 4px;
+        background: #e7f3ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0078d4;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .activity-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .activity-title {
+        margin: 0 0 4px 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #323130;
+        line-height: 1.3;
+    }
+
+    .activity-date {
+        font-size: 11px;
+        color: #605e5c;
+        line-height: 1.4;
+    }
+
+    .btn-edit {
+        width: 28px;
+        height: 28px;
+        border: 1px solid #e1e1e1;
+        background: transparent;
+        border-radius: 3px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #605e5c;
+        font-size: 12px;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+        .btn-edit:hover {
+            background: #0078d4;
+            border-color: #0078d4;
+            color: white;
+        }
+
+    .activity-card-body {
+        padding: 12px 14px;
+        background: #ffffff;
+    }
+
+        .activity-card-body p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #323130;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+    .activity-card-footer {
+        padding: 10px 14px;
+        background: #fafafa;
+        border-top: 1px solid #e1e1e1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .activity-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1;
+        border-radius: 2px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-open {
+        background: #fff4ce;
+        color: #797673;
+    }
+
+    .badge-made {
+        background: #dff6dd;
+        color: #107c10;
+    }
+
+    .badge-received {
+        background: #cfe4fc;
+        color: #004578;
+    }
+
+    .badge-canceled {
+        background: #f3f2f1;
+        color: #605e5c;
+    }
+
+    .badge-default {
+        background: #f3f2f1;
+        color: #323130;
+    }
+
+    .activity-type-label {
+        font-size: 11px;
+        color: #605e5c;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+        .activity-type-label i {
+            font-size: 12px;
+        }
+
+    .timeline-empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: #605e5c;
+    }
+
+        .timeline-empty-state i {
+            font-size: 64px;
+            opacity: 0.2;
+            display: block;
+            margin-bottom: 16px;
+            color: #0078d4;
+        }
+
+        .timeline-empty-state p {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #323130;
+        }
+
+        .timeline-empty-state span {
+            font-size: 13px;
+            color: #8a8886;
+        }
+
+    .activity-timeline-wrapper::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .activity-timeline-wrapper::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .activity-timeline-wrapper::-webkit-scrollbar-thumb {
+        background: #c8c6c4;
+        border-radius: 3px;
+    }
+
+        .activity-timeline-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #a19f9d;
+        }
+</style>

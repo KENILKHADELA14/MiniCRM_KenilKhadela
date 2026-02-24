@@ -48,6 +48,23 @@ public class LoginHistory : BaseObject
         set => SetPropertyValue(nameof(LoginTime), ref loginTime, value);
     }
 
+    public string IPAddress = System.Net.IPAddress.Loopback.ToString();
+    public string HostName = System.Net.Dns.GetHostName();
+
     private DateTime? logoutTime; public DateTime? LogoutTime { get => logoutTime; set => SetPropertyValue(nameof(LogoutTime), ref logoutTime, value); }
+
+    private XPCollection<AuditDataItemPersistent> auditTrail;
+    [CollectionOperationSet(AllowAdd = false, AllowRemove = false)]
+    public XPCollection<AuditDataItemPersistent> AuditTrail
+    {
+        get
+        {
+            if (auditTrail == null)
+            {
+                auditTrail = AuditedObjectWeakReference.GetAuditTrail(Session, this);
+            }
+            return auditTrail;
+        }
+    }
 
 }

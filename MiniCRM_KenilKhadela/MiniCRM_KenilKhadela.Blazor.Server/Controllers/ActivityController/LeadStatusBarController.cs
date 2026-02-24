@@ -4,17 +4,18 @@ using DevExpress.ExpressApp.Blazor;
 using DevExpress.ExpressApp.StateMachine;
 using MiniCRM_KenilKhadela.Blazor.Server.Editors.Lead_StatusBar;
 using MiniCRM_KenilKhadela.Module.BusinessObjects;
+using System;
 using System.Linq;
 
 namespace MiniCRM_KenilKhadela.Blazor.Server.Controllers
 {
-    public class LeadStatusBarController : ObjectViewController<DetailView, Lead>
+    public class LeadStatusBarController : ViewController<DetailView>
     {
         private Lead.LeadProcessStageEnum? previousStage;
+        private Lead currentLead;
 
         public LeadStatusBarController()
         {
-            TargetObjectType = typeof(Lead);
             TargetViewType = ViewType.DetailView;
         }
 
@@ -22,15 +23,30 @@ namespace MiniCRM_KenilKhadela.Blazor.Server.Controllers
         {
             base.OnActivated();
 
-            if (ViewCurrentObject != null)
-                previousStage = ViewCurrentObject.LeadProcessStage;
+            if (View.CurrentObject is Lead lead)
+            {
+                currentLead = lead;
+            }
+            else if (View.CurrentObject is Opportunities opportunity)
+            {
+                currentLead = opportunity.Lead;
+            }
 
-            ObjectSpace.ObjectChanged += ObjectSpace_ObjectChanged;
+            if (currentLead != null)
+            {
+                previousStage = currentLead.LeadProcessStage;
+            }
 
-            var stateMachineController = Frame.GetController<StateMachineController>();
+            if (ObjectSpace != null)
+                ObjectSpace.ObjectChanged += ObjectSpace_ObjectChanged;
+
+            var stateMachineController = Frame?.GetController<StateMachineController>();
             if (stateMachineController != null)
             {
-                var actions = stateMachineController.Actions.OfType<SingleChoiceAction>().ToList();
+                var actions = stateMachineController.Actions
+                    .OfType<SingleChoiceAction>()
+                    .ToList();
+
                 foreach (var action in actions)
                 {
                     action.Execute += StateMachineAction_Execute;
@@ -47,15 +63,23 @@ namespace MiniCRM_KenilKhadela.Blazor.Server.Controllers
                     RefreshView();
                 });
             }
+            else
+            {
+                RefreshView();
+            }
         }
 
         private void ObjectSpace_ObjectChanged(object sender, ObjectChangedEventArgs e)
         {
-            if (e.Object is Lead lead && lead == ViewCurrentObject && e.PropertyName == nameof(Lead.LeadProcessStage))
+            if (currentLead == null)
+                return;
+
+            if (e.Object == currentLead &&
+                e.PropertyName == nameof(Lead.LeadProcessStage))
             {
-                if (previousStage != lead.LeadProcessStage)
+                if (previousStage != currentLead.LeadProcessStage)
                 {
-                    previousStage = lead.LeadProcessStage;
+                    previousStage = currentLead.LeadProcessStage;
                     RefreshView();
                 }
             }
@@ -71,17 +95,22 @@ namespace MiniCRM_KenilKhadela.Blazor.Server.Controllers
 
         protected override void OnDeactivated()
         {
-            ObjectSpace.ObjectChanged -= ObjectSpace_ObjectChanged;
+            if (ObjectSpace != null)
+                ObjectSpace.ObjectChanged -= ObjectSpace_ObjectChanged;
 
-            var stateMachineController = Frame.GetController<StateMachineController>();
+            var stateMachineController = Frame?.GetController<StateMachineController>();
             if (stateMachineController != null)
             {
-                var actions = stateMachineController.Actions.OfType<SingleChoiceAction>().ToList();
+                var actions = stateMachineController.Actions
+                    .OfType<SingleChoiceAction>()
+                    .ToList();
+
                 foreach (var action in actions)
                 {
                     action.Execute -= StateMachineAction_Execute;
                 }
             }
+
             base.OnDeactivated();
         }
     }

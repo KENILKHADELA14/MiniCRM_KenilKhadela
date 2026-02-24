@@ -5,7 +5,7 @@ using MiniCRM_KenilKhadela.Module.BusinessObjects;
 
 namespace MiniCRM_KenilKhadela.Blazor.Server.Controllers
 {
-    public class SwitchFilterActionController : ObjectViewController<ListView, Lead>
+    public class SwitchFilterActionController : ViewController<ListView>
     {
         private SimpleAction toggleFilterRowAction;
 
@@ -27,6 +27,19 @@ namespace MiniCRM_KenilKhadela.Blazor.Server.Controllers
 
                 gridModel.ShowFilterRow = !gridModel.ShowFilterRow;
             }
+        }
+
+        protected override void OnActivated()
+        {
+            base.OnActivated();
+
+            bool isTargetType = View.ObjectTypeInfo.Type == typeof(Lead) ||
+                          View.ObjectTypeInfo.Type == typeof(Contact)||
+                          View.ObjectTypeInfo.Type == typeof(MiniCRM_KenilKhadela.Module.BusinessObjects.Activity)||
+                          View.ObjectTypeInfo.Type == typeof(Opportunities) ||
+                          View.ObjectTypeInfo.Type == typeof(Accounts);
+
+            toggleFilterRowAction.Active["ObjectTypeRequirement"] = isTargetType;
         }
 
         protected override void OnDeactivated()

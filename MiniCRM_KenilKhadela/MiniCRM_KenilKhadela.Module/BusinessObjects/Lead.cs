@@ -23,7 +23,7 @@ namespace MiniCRM_KenilKhadela.Module.BusinessObjects;
 [DefaultClassOptions]
 [NavigationItem("Sales")]
 [ImageName("BO_Lead")]
-public class Lead : BaseObject , IStateMachineProvider
+public class Lead : BaseObject, IStateMachineProvider
 {
     public Lead(Session session)
         : base(session)
@@ -34,9 +34,9 @@ public class Lead : BaseObject , IStateMachineProvider
     public override void AfterConstruction()
     {
         base.AfterConstruction();
-        if (SecuritySystem.CurrentUser is PermissionPolicyUser user)
+        if (SecuritySystem.CurrentUser is ApplicationUser user)
         {
-            Owner = Session.GetObjectByKey<PermissionPolicyUser>(user.Oid);
+            Owner = Session.GetObjectByKey<ApplicationUser>(user.Oid);
         }
         CreatedOn = DateTime.Now;
     }
@@ -73,7 +73,7 @@ public class Lead : BaseObject , IStateMachineProvider
         get => subject;
         set => SetPropertyValue(nameof(Subject), ref subject, value);
     }
-        
+
     private DateTime? createdOn;
     [XafDisplayName(nameof(CreatedOn))]
     [ModelDefault("EditMask", "G")]
@@ -103,7 +103,7 @@ public class Lead : BaseObject , IStateMachineProvider
     public string ReadableFirstName
     {
         get => readableFirstName;
-        set => SetPropertyValue(nameof(ReadableFirstName),ref  readableFirstName, value);
+        set => SetPropertyValue(nameof(ReadableFirstName), ref readableFirstName, value);
     }
 
     private string readableLastName;
@@ -121,8 +121,8 @@ public class Lead : BaseObject , IStateMachineProvider
     [XafDisplayName("Readable MiddleName")]
     public string ReadableMiddleName
     {
-        get=> readableMiddleName;
-        set=> SetPropertyValue(nameof(ReadableMiddleName),ref readableMiddleName, value);
+        get => readableMiddleName;
+        set => SetPropertyValue(nameof(ReadableMiddleName), ref readableMiddleName, value);
     }
 
     protected override void OnSaved()
@@ -131,23 +131,24 @@ public class Lead : BaseObject , IStateMachineProvider
         ModifiedOn = DateTime.Now;
     }
 
-    private PermissionPolicyUser owner;
-    public PermissionPolicyUser Owner
+    private ApplicationUser owner;
+    public ApplicationUser Owner
     {
         get => owner;
         set => SetPropertyValue(nameof(Owner), ref owner, value);
     }
 
-    private PermissionPolicyUser createdBy;
-    public PermissionPolicyUser CreatedBy { 
-        get => createdBy; 
-        set => SetPropertyValue(nameof(CreatedBy), ref createdBy, value); 
+    private ApplicationUser createdBy;
+    public ApplicationUser CreatedBy
+    {
+        get => createdBy;
+        set => SetPropertyValue(nameof(CreatedBy), ref createdBy, value);
     }
 
-    private PermissionPolicyUser modifiedBy; public PermissionPolicyUser ModifiedBy
+    private ApplicationUser modifiedBy; public ApplicationUser ModifiedBy
     {
-        get => modifiedBy; 
-        set => SetPropertyValue(nameof(ModifiedBy), ref modifiedBy, value); 
+        get => modifiedBy;
+        set => SetPropertyValue(nameof(ModifiedBy), ref modifiedBy, value);
     }
 
     private string title;
@@ -155,8 +156,8 @@ public class Lead : BaseObject , IStateMachineProvider
     [VisibleInListView(false)]
     public string Title
     {
-        get=> title;
-        set=> SetPropertyValue(nameof(Title), ref title, value);
+        get => title;
+        set => SetPropertyValue(nameof(Title), ref title, value);
     }
 
     private Address address1;
@@ -201,11 +202,12 @@ public class Lead : BaseObject , IStateMachineProvider
     [VisibleInListView(false)]
     public string Phone
     {
-        get=> phone;
+        get => phone;
         set => SetPropertyValue(nameof(Phone), ref phone, value);
     }
 
     private LeadStatusEnum leadStatus;
+    [VisibleInDetailView(false)]
     [XafDisplayName("State")]
     public LeadStatusEnum LeadStatus
     {
@@ -219,12 +221,13 @@ public class Lead : BaseObject , IStateMachineProvider
     {
 
         get => leadProcessStage;
-        set {
+        set
+        {
             try
             {
                 leadProcessStage = value;
             }
-            catch(System.NullReferenceException ex)
+            catch (System.NullReferenceException ex)
             {
                 leadProcessStage = value;
             }
@@ -238,8 +241,8 @@ public class Lead : BaseObject , IStateMachineProvider
     [VisibleInListView(false)]
     public string Company
     {
-        get=> company;
-        set=> SetPropertyValue(nameof(Company), ref company, value);
+        get => company;
+        set => SetPropertyValue(nameof(Company), ref company, value);
     }
 
     private string companyName;
@@ -256,12 +259,13 @@ public class Lead : BaseObject , IStateMachineProvider
     [VisibleInListView(false)]
     public string Website
     {
-        get=> website;
-        set=> SetPropertyValue(nameof(Website), ref website, value);
+        get => website;
+        set => SetPropertyValue(nameof(Website), ref website, value);
     }
 
     [NonPersistent]
     [VisibleInListView(false)]
+    [VisibleInDetailView(false)]
     [XafDisplayName("")]
     public string DisplayName => $"{CompanyName} - {FullName}";
 
@@ -280,7 +284,7 @@ public class Lead : BaseObject , IStateMachineProvider
     public Opportunities QualifyingOpportunities
     {
         get => qualifyingOpportunities;
-        set => SetPropertyValue(nameof(QualifyingOpportunities),ref qualifyingOpportunities, value);
+        set => SetPropertyValue(nameof(QualifyingOpportunities), ref qualifyingOpportunities, value);
     }
 
     private Contact parentContact;
@@ -291,12 +295,12 @@ public class Lead : BaseObject , IStateMachineProvider
         get => parentContact;
         set => SetPropertyValue(nameof(ParentContact), ref parentContact, value);
     }
-    
+
     [Association("Activities-Leads")]
     public XPCollection<Activity> Activities => GetCollection<Activity>(nameof(Activities));
 
     [VisibleInListView(false)]
-    public bool IsQualifiedProcessed {get;set;}
+    public bool IsQualifiedProcessed { get; set; }
 
     [VisibleInListView(false)]
     public Accounts Account { get; set; }
@@ -329,21 +333,23 @@ public class Lead : BaseObject , IStateMachineProvider
     {
         base.OnSaving();
 
-        if (Session.IsNewObject(this)) return;
-        if(SecuritySystem.CurrentUser is PermissionPolicyUser user)
+        if (SecuritySystem.CurrentUser is ApplicationUser user)
         {
-            var currentUser = Session.GetObjectByKey<PermissionPolicyUser>(user.Oid);
+            var currentUser = Session.GetObjectByKey<ApplicationUser>(user.Oid);
+
             if (Session.IsNewObject(this))
             {
                 CreatedOn = DateTime.Now;
                 CreatedBy = currentUser;
+
+                if (Owner == null) Owner = currentUser;
             }
 
             ModifiedOn = DateTime.Now;
             ModifiedBy = currentUser;
         }
 
-        if(LeadStatus==LeadStatusEnum.Qualified && !IsQualifiedProcessed)
+        if (LeadStatus == LeadStatusEnum.Qualified && !IsQualifiedProcessed)
         {
             CreateQualifiedObjects();
             IsQualifiedProcessed = true;
@@ -376,7 +382,7 @@ public class Lead : BaseObject , IStateMachineProvider
             PrimaryContact = ParentContact
         };
 
-        Opportunity =new Opportunities(Session)
+        Opportunity = new Opportunities(Session)
         {
             Topic = Subject,
             TimeFrame = TimeFrame.ThisYear,
@@ -386,7 +392,7 @@ public class Lead : BaseObject , IStateMachineProvider
             EstimatedCloseDate = DateTime.Now.AddMonths(1),
             Description = $"Opportunity created from Lead: {FullName}",
             Accounts = Account,
-           Contact = Contact
+            Contact = Contact
         };
 
         Contact = new Contact(Session)
@@ -419,4 +425,4 @@ public class Lead : BaseObject , IStateMachineProvider
         Closed = 4
     }
 
-}
+      }

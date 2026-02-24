@@ -25,11 +25,49 @@
     <SchemaModule Name="SystemModule" Version="25.2.4.0" IsNewNode="True" />
   </SchemaModules>
   <Views>
+    <ListView Id="Lead_Activities_ListView" ImageName="State_Task_Completed" />
     <DetailView Id="Lead_DetailView">
       <HiddenActions Index="">
         <ActionLink ActionId="EditAddress1" IsNewNode="True" />
         <ActionLink ActionId="EditAddress2" IsNewNode="True" />
       </HiddenActions>
+      <Layout>
+        <LayoutGroup Id="Main">
+          <LayoutGroup Id="SimpleEditors" RelativeSize="99.88331388564761">
+            <TabbedGroup Id="Item1">
+              <LayoutGroup Id="Lead">
+                <LayoutGroup Id="Autob7c3a340-472b-42d5-95e5-1ac605413eb2">
+                  <LayoutGroup Id="Autobe9b49fc-eccc-4c40-aa98-21474f30f0f8">
+                    <LayoutItem Id="DisplayName" RelativeSize="51.05386416861827" />
+                    <LayoutItem Id="LeadStatus" RelativeSize="48.94613583138173" />
+                  </LayoutGroup>
+                  <LayoutGroup Id="Auto2995c95c-30be-457d-95f7-946af476fbf9">
+                    <LayoutGroup Id="Auto0d51d787-dfab-4457-8df9-59bbd9298b10">
+                      <LayoutGroup Id="Auto2f863ea0-72ff-4d60-a544-9bb240db7e3d" RelativeSize="54.566744730679154" />
+                      <LayoutGroup Id="Auto72110154-37e1-48a7-bb4f-4afb7a2f6eef" RelativeSize="45.433255269320846" />
+                    </LayoutGroup>
+                  </LayoutGroup>
+                </LayoutGroup>
+              </LayoutGroup>
+              <LayoutGroup Id="Item2">
+                <TabbedGroup Id="Item8">
+                  <LayoutGroup Id="Item9">
+                    <LayoutGroup Id="Autoba876c92-d972-4f35-9cae-9b881eab8cff">
+                      <LayoutItem Id="CreatedOn" RelativeSize="49.1725768321513" />
+                      <LayoutItem Id="ModifiedOn" RelativeSize="50.8274231678487" />
+                    </LayoutGroup>
+                    <LayoutGroup Id="Auto2f4cc95e-8dd3-414c-9b47-45ac6088fba0">
+                      <LayoutItem Id="CreatedBy" RelativeSize="49.1725768321513" />
+                      <LayoutItem Id="ModifiedBy" RelativeSize="50.8274231678487" />
+                    </LayoutGroup>
+                  </LayoutGroup>
+                </TabbedGroup>
+              </LayoutGroup>
+            </TabbedGroup>
+          </LayoutGroup>
+          <LayoutGroup Id="SizeableEditors" RelativeSize="0.11668611435239207" />
+        </LayoutGroup>
+      </Layout>
     </DetailView>
   </Views>
 </Application>

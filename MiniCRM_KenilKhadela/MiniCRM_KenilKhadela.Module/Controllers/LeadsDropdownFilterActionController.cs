@@ -67,11 +67,11 @@ public class LeadsDropdownFilterActionController : ViewController<ListView> {
             switch (e.SelectedChoiceActionItem.Data as string)
             {
                 case "My Open Leads":
-                    cs.Criteria["LeadFilter"] = CriteriaOperator.Parse("LeadStatus =? AND  Owner.Oid=?", LeadStatusEnum.Qualified, SecuritySystem.CurrentUserId);
+                    cs.Criteria["LeadFilter"] = CriteriaOperator.Parse("LeadStatus !=? AND  Owner.Oid=?", LeadStatusEnum.DisQualified, SecuritySystem.CurrentUserId);
                     break;
 
                 case "Open Leads":
-                    cs.Criteria["LeadFilter"] = CriteriaOperator.Parse("LeadStatus =?", LeadStatusEnum.Open);
+                    cs.Criteria["LeadFilter"] = CriteriaOperator.Parse("LeadStatus !=?", LeadStatusEnum.DisQualified);
                     break;
 
 

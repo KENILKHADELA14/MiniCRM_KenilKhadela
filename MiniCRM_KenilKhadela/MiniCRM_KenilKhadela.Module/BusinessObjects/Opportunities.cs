@@ -146,6 +146,13 @@ public class Opportunities : BaseObject {
         set=> SetPropertyValue(nameof(CustomerNeed),ref customerNeed, value);
     }
 
+    private Lead lead;
+    public Lead Lead
+    {
+        get => lead;
+        set => SetPropertyValue(nameof(Lead), ref lead, value);
+    }
+
     [RuleFromBoolProperty("ActualCloseDateValidation", DefaultContexts.Save, CustomMessageTemplate = "Actual close date can not be earlier than Estimated close date")]
     public bool IsActualCloseDateValid
     {

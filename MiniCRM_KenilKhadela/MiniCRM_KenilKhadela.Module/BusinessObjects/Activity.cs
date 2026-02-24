@@ -99,7 +99,15 @@ public class Activity : BaseObject {
         set => SetPropertyValue(nameof(State), ref state, value);
     }
 
-    
+    public string GetStateColor() => State switch
+    {
+        ActivityState.Open => "#3498db",      
+        ActivityState.Made => "#2ecc71",      
+        ActivityState.Canceled => "#e74c3c",  
+        ActivityState.Received => "#4ffce2",
+        _ => "#95a5a6"                        
+    };
+
 
     private Lead lead;
     [Association("Activities-Leads")]

@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace MiniCRM_KenilKhadela.Module.BusinessObjects
 {
     [XafDefaultProperty(nameof(AccountName))]
-    [DefaultClassOptions]
+    [NavigationItem("Customers")]
     public class Accounts : BaseObject
     {
 

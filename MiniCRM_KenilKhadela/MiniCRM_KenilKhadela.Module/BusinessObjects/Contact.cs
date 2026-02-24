@@ -16,7 +16,8 @@ using AggregatedAttribute = DevExpress.Xpo.AggregatedAttribute;
 
 namespace MiniCRM_KenilKhadela.Module.BusinessObjects;
 
-[DefaultClassOptions]
+[NavigationItem("Customers")]
+[DefaultProperty(nameof(FullName))]
 public class Contact : BaseObject {
    
     public Contact(Session session)
@@ -156,6 +157,17 @@ public class Contact : BaseObject {
         set => SetPropertyValue(nameof(Address2), ref address2, value);
     }
 
+    private ContactState state;
+    public ContactState State
+    {
+        get => state;
+        set => SetPropertyValue(nameof(State), ref state, value);
+    }
+
+    [PersistentAlias("concat(FirstName,LastName)")]
+    [ReadOnly(true)]
+    [VisibleInListView(false)]
+    public string FullName => Convert.ToString(EvaluateAlias(nameof(FullName)));
     //private Opportunities opportunities;
     //[VisibleInDetailView(false)]
     //[ExpandObjectMembers(ExpandObjectMembers.Never)]

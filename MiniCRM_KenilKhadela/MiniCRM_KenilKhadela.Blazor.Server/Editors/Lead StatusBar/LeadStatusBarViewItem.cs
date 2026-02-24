@@ -27,7 +27,7 @@ namespace MiniCRM_KenilKhadela.Blazor.Server.Editors.Lead_StatusBar
 
             var currentObject = View?.CurrentObject;
 
-            if (currentObject is Lead)
+            if (currentObject is Lead || currentObject is Opportunities)
             {
                 builder.OpenComponent<LeadStatusBar>(0);
                 builder.AddAttribute(1, nameof(LeadStatusBar.ViewItem), this);

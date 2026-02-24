@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application>
+  <Localization>
+    <LocalizationGroup Name="Enums">
+      <LocalizationGroup Name="MiniCRM_KenilKhadela.Module.BusinessObjects.Lead+LeadProcessStageEnum">
+        <LocalizationItem Name="Closed" Value="閉店" />
+        <LocalizationItem Name="Develop" Value="開発する" />
+        <LocalizationItem Name="Propose" Value="提案する&#xA;" />
+        <LocalizationItem Name="Qualified" Value="適格な&#xA;" />
+      </LocalizationGroup>
+    </LocalizationGroup>
+  </Localization>
+  <Views>
+    <DetailView Id="Lead_DetailView">
+      <Layout>
+        <LayoutGroup Id="Main">
+          <LayoutGroup Id="SimpleEditors">
+            <TabbedGroup Id="Item1" Caption="要約">
+              <LayoutGroup Id="Lead" Caption="要約">
+                <LayoutGroup Id="Autob7c3a340-472b-42d5-95e5-1ac605413eb2">
+                  <LayoutGroup Id="Auto2995c95c-30be-457d-95f7-946af476fbf9">
+                    <LayoutGroup Id="Auto0d51d787-dfab-4457-8df9-59bbd9298b10">
+                      <LayoutGroup Id="Auto2f863ea0-72ff-4d60-a544-9bb240db7e3d">
+                        <TabbedGroup Id="Item4">
+                          <LayoutGroup Id="Item3" Caption="件名" />
+                        </TabbedGroup>
+                        <TabbedGroup Id="Item5">
+                          <LayoutGroup Id="Lead_col1" Caption="お問い合わせ&#xA;" />
+                        </TabbedGroup>
+                        <TabbedGroup Id="Item7">
+                          <LayoutGroup Id="Item6" Caption="会社&#xA;" />
+                        </TabbedGroup>
+                      </LayoutGroup>
+                      <LayoutGroup Id="Auto72110154-37e1-48a7-bb4f-4afb7a2f6eef">
+                        <LayoutGroup Id="Activities_Group" Caption="活動" />
+                      </LayoutGroup>
+                    </LayoutGroup>
+                  </LayoutGroup>
+                </LayoutGroup>
+              </LayoutGroup>
+              <LayoutGroup Id="Item2" Caption="関連&#xA;" />
+            </TabbedGroup>
+          </LayoutGroup>
+        </LayoutGroup>
+      </Layout>
+    </DetailView>
+    <ListView Id="Lead_ListView" Caption="見込み客&#xA;" />
+  </Views>
+</Application>

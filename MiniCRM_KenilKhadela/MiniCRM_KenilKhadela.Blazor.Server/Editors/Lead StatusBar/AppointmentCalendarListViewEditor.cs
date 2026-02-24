@@ -23,7 +23,7 @@ public class AppointmentCalendarListEditor : ListEditor, IComponentContentHolder
         this.collectionSource = collectionSource;
         this.application = application;
     }
-
+    
     protected override object CreateControlsCore()
     {
         componentContent = CreateComponentContent();

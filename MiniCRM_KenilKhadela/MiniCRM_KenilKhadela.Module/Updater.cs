@@ -39,10 +39,10 @@ namespace MiniCRM_KenilKhadela.Module.DatabaseUpdate
             {
                 adminRole.AddTypePermission<DashboardData>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
             }
-            var users = ObjectSpace.FirstOrDefault<PermissionPolicyUser>(o => o.UserName == "Kenil Khadela");
+            var users = ObjectSpace.FirstOrDefault<ApplicationUser>(o => o.UserName == "Kenil Khadela");
             if (users == null)
             {
-                users = ObjectSpace.CreateObject<PermissionPolicyUser>();
+                users = ObjectSpace.CreateObject<ApplicationUser>();
                 users.UserName = "Kenil Khadela";
                 users.SetPassword("1234");
                 users.Roles.Add(userRole);
@@ -65,10 +65,10 @@ namespace MiniCRM_KenilKhadela.Module.DatabaseUpdate
             userRole.AddTypePermission<TransactionCurrency>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
             userRole.AddTypePermission<ActivityPhone>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
             userRole.AddTypePermission<Opportunities>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
-            var adminUser = ObjectSpace.FirstOrDefault<PermissionPolicyUser>(u => u.UserName == "Admin");
+            var adminUser = ObjectSpace.FirstOrDefault<ApplicationUser>(u => u.UserName == "Admin");
             if (adminUser == null)
             {
-                adminUser = ObjectSpace.CreateObject<PermissionPolicyUser>();
+                adminUser = ObjectSpace.CreateObject<ApplicationUser>();
                 adminUser.UserName = "Admin";
                 adminUser.SetPassword("Admin");
                 adminUser.Roles.Add(adminRole);

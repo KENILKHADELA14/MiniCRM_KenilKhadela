@@ -23,7 +23,7 @@ public class ResetViewSettingsActionController : ViewController<ListView> {
     // https://docs.devexpress.com/CodeRushForRoslyn/403133/
     private SimpleAction resetViewSettingsAction;
     public ResetViewSettingsActionController() {
-        TargetObjectType = typeof(Lead);
+        //TargetObjectType = typeof(Lead);
         TargetViewType = ViewType.ListView;
 
         resetViewSettingsAction = new SimpleAction(
@@ -35,7 +35,7 @@ public class ResetViewSettingsActionController : ViewController<ListView> {
             ImageName = "Action_Reset"
         };
 
-        resetViewSettingsAction.Execute += ResetViewSettingsAction_Execute; ;
+        resetViewSettingsAction.Execute += ResetViewSettingsAction_Execute;
 
     }
 
@@ -61,6 +61,13 @@ public class ResetViewSettingsActionController : ViewController<ListView> {
 
     protected override void OnActivated() {
         base.OnActivated();
+        bool isTargetType = View.ObjectTypeInfo.Type == typeof(Lead) ||
+                          View.ObjectTypeInfo.Type == typeof(Contact) ||
+                          View.ObjectTypeInfo.Type == typeof(MiniCRM_KenilKhadela.Module.BusinessObjects.Activity) ||
+                          View.ObjectTypeInfo.Type == typeof(Opportunities) ||
+                          View.ObjectTypeInfo.Type == typeof(Accounts);
+
+        resetViewSettingsAction.Active["ObjectTypeRequirement"] = isTargetType;
         
     }
     protected override void OnViewControlsCreated() {

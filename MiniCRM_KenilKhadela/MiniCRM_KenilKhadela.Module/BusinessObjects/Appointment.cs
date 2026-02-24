@@ -35,7 +35,7 @@ public class Appointment : Activity {
     public Appointment(Session session)
         : base(session) {
     }
-    public Appointment() : base(new Session()) { }
+    //public Appointment() : base(new Session()) { }
     public override void AfterConstruction() {
         base.AfterConstruction();
         this.Type = 0;
@@ -110,9 +110,10 @@ public class Appointment : Activity {
 
 
     private int label;
+    [Browsable(false)]
     public int Label
     {
-        get => label;
+        get => (int)Reasons;
         set => SetPropertyValue(nameof(Label), ref label, value);
     }
 

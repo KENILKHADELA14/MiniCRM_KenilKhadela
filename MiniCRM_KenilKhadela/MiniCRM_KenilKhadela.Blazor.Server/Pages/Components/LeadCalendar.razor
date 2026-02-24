@@ -30,12 +30,23 @@ else
 }
 
 @code {
+    public class SchedulerAppointmentModel
+    {
+        public object Id { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public string Subject { get; set; }
+        public string Description { get; set; }
+        public bool AllDay { get; set; }
+        public int Label { get; set; }
+    }
+
 
     [Parameter] public List<Appointment> Appointments { get; set; }
     [Parameter] public IObjectSpace ObjectSpace { get; set; }
     private DxSchedulerDataStorage DataStorage { get; set; }
     private IObjectSpace workingObjectSpace;
-    private ObservableCollection<Appointment> appointmentsCollection;
+    private ObservableCollection<SchedulerAppointmentModel> appointmentsCollection;
     private DateTime StartDate = DateTime.Today;
     private SchedulerViewType ActiveView = SchedulerViewType.Day;
     public class SchedulerLabelEntity
@@ -57,8 +68,17 @@ else
 
     protected override void OnInitialized()
     {
-        workingObjectSpace = ObjectSpace ?? ObjectSpaceFactory.CreateObjectSpace(typeof(Appointment));
-        appointmentsCollection = new ObservableCollection<Appointment>();
+        // workingObjectSpace = ObjectSpace ?? ObjectSpaceFactory.CreateObjectSpace(typeof(Appointment));
+        if(ObjectSpace != null)
+        {
+            workingObjectSpace = ObjectSpace;
+        }
+        else
+        {
+            workingObjectSpace = ObjectSpaceFactory.CreateObjectSpace(typeof(Appointment));
+        }
+
+        appointmentsCollection = new ObservableCollection<SchedulerAppointmentModel>();
         InitializeDataStorage();
     }
 
@@ -72,12 +92,22 @@ else
     {
         try
         {
-            var appointments = Appointments ?? workingObjectSpace.GetObjects<Appointment>().ToList();
+            var persistentAppointments = Appointments ?? workingObjectSpace.GetObjects<Appointment>().ToList();
 
             appointmentsCollection.Clear();
-            foreach (var apt in appointments)
+            foreach (var apt in persistentAppointments)
             {
-                appointmentsCollection.Add(apt);
+                appointmentsCollection.Add(new SchedulerAppointmentModel
+                    {
+                        Id = apt.Oid,
+                        StartDate = apt.StartDate,
+                        EndDate = apt.EndDate,
+                        Subject = apt.Subject,
+                        Description = apt.Description,
+                        AllDay = apt.AllDay,
+                        Label = apt.Label
+
+                    });
             }
 
             if (DataStorage == null)
@@ -87,13 +117,13 @@ else
                     AppointmentsSource = appointmentsCollection,
                     AppointmentMappings = new DxSchedulerAppointmentMappings
                     {
-                        Id = nameof(Appointment.AppointmentId),
-                        Start = nameof(Appointment.StartDate),
-                        End = nameof(Appointment.EndDate),
-                        Subject = nameof(Appointment.Subject),
-                        Description = nameof(Appointment.Description),
-                        AllDay = nameof(Appointment.AllDay)
-                        // LabelId = nameof(Appointment.Label)
+                        Id = nameof(SchedulerAppointmentModel.Id),
+                        Start = nameof(SchedulerAppointmentModel.StartDate),
+                        End = nameof(SchedulerAppointmentModel.EndDate),
+                        Subject = nameof(SchedulerAppointmentModel.Subject),
+                        Description = nameof(SchedulerAppointmentModel.Description),
+                        AllDay = nameof(SchedulerAppointmentModel.AllDay),
+                        LabelId = nameof(SchedulerAppointmentModel.Label)
                     }
                 };
             }
@@ -117,7 +147,21 @@ else
             appointmentsCollection.Clear();
             foreach (var apt in appointments)
             {
-                appointmentsCollection.Add(apt);
+                var trckdApt = workingObjectSpace.GetObjectByKey<Appointment>(apt.Oid);
+                if(trckdApt != null)
+                {
+                    appointmentsCollection.Add(new SchedulerAppointmentModel
+                    {
+                        Id = apt.Oid,
+                        StartDate = apt.StartDate,
+                        EndDate = apt.EndDate,
+                        Subject = apt.Subject,
+                        Description = apt.Description,
+                        AllDay = apt.AllDay,
+                        Label = apt.Label
+
+                    });
+                }
             }
 
             InvokeAsync(StateHasChanged);
@@ -140,12 +184,22 @@ else
             apt.StartDate = e.Start;
             apt.EndDate = e.End;
             apt.AllDay = e.AllDay;
-            // apt.Label = Convert.ToInt32(e.LabelId ?? 0);
+            apt.Label = Convert.ToInt32(e.LabelId ?? 0);
 
             workingObjectSpace.CommitChanges();
 
             RefreshAppointments();
-            appointmentsCollection.Add(apt);
+            appointmentsCollection.Add(new SchedulerAppointmentModel
+            {
+                Id = apt.Oid,
+                StartDate = apt.StartDate,
+                EndDate = apt.EndDate,
+                Subject = apt.Subject,
+                Description = apt.Description,
+                AllDay = apt.AllDay,
+                Label = apt.Label
+
+            });
             RefreshSchedulerUI();
         }
         catch (Exception ex)
@@ -168,7 +222,7 @@ else
                 apt.StartDate = e.Start;
                 apt.EndDate = e.End;
                 apt.AllDay = e.AllDay;
-                // apt.Label = Convert.ToInt32(e.LabelId ?? 0);
+                apt.Label = Convert.ToInt32(e.LabelId ?? 0);
 
                 workingObjectSpace.CommitChanges();
 
@@ -220,6 +274,10 @@ else
 
     public void Dispose()
     {
+        if(workingObjectSpace!=null && ObjectSpace == null)
+        {
+            workingObjectSpace.Dispose();
+        }
     }
 
 }

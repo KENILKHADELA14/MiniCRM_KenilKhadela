@@ -8,6 +8,7 @@ using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using MiniCRM_KenilKhadela.Blazor.Server.Services;
+using MiniCRM_KenilKhadela.Module.BusinessObjects;
 
 namespace MiniCRM_KenilKhadela.Blazor.Server
 {
@@ -66,7 +67,7 @@ namespace MiniCRM_KenilKhadela.Blazor.Server
                 builder.Security.UseIntegratedMode(options =>
                 {
                     options.RoleType = typeof(PermissionPolicyRole);
-                    options.UserType = typeof(PermissionPolicyUser);
+                    options.UserType = typeof(ApplicationUser);
                 })
                 .AddPasswordAuthentication();
                 builder.ObjectSpaceProviders
