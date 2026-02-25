@@ -116,9 +116,9 @@ namespace MiniCRM_KenilKhadela.Module
             try
             {
                 var app = sender as XafApplication;
-                if (app == null) {return;}
+                if (app == null) { return; }
 
-                if(e.LogonParameters is AuthenticationStandardLogonParameters logonParameters)
+                if (e.LogonParameters is AuthenticationStandardLogonParameters logonParameters)
                 {
                     string userName = logonParameters.UserName;
                     string password = logonParameters.Password;
