@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.Linq;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
 using DevExpress.ExpressApp.DC;
@@ -25,11 +27,14 @@ namespace MiniCRM_KenilKhadela.Module
     // For more typical usage scenarios, be sure to check out https://docs.devexpress.com/eXpressAppFramework/DevExpress.ExpressApp.ModuleBase.
     public sealed class MiniCRM_KenilKhadelaModule : ModuleBase
     {
+        private static readonly object lockObject = new object();
+        private bool isInitialized = false;
+
         public MiniCRM_KenilKhadelaModule()
         {
-            //
+            // 
             // MiniCRM_KenilKhadelaModule
-            //
+            // 
             AdditionalExportedTypes.Add(typeof(DevExpress.Persistent.BaseImpl.BaseObject));
             AdditionalExportedTypes.Add(typeof(DevExpress.Persistent.BaseImpl.AuditDataItemPersistent));
             AdditionalExportedTypes.Add(typeof(DevExpress.Persistent.BaseImpl.AuditedObjectWeakReference));
@@ -48,53 +53,143 @@ namespace MiniCRM_KenilKhadela.Module
             //RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.DashboardView);
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.AuditTrail.AuditTrailModule));
         }
+
         public override IEnumerable<ModuleUpdater> GetModuleUpdaters(IObjectSpace objectSpace, Version versionFromDB)
         {
             ModuleUpdater updater = new DatabaseUpdate.Updater(objectSpace, versionFromDB);
             return new ModuleUpdater[] { updater };
         }
+
         public override void Setup(XafApplication application)
         {
             base.Setup(application);
-            application.LoggedOn += Application_LoggedOn;
-            application.LoggingOff += Application_LoggedOff;
-            // Manage various aspects of the application UI and behavior at the module level.
-        }
-        private void Application_LoggedOff(object sender, EventArgs e)
-        {
-            string currentUserName = SecuritySystem.CurrentUserName;
-            if (string.IsNullOrEmpty(currentUserName)) return;
 
-            var app = sender as XafApplication;
-
-            using (IObjectSpace os = app.CreateObjectSpace(typeof(LoginHistory)))
+            lock (lockObject)
             {
-                var lastLogin = os.GetObjectsQuery<LoginHistory>()
-                    .Where(i => i.UserName == currentUserName && i.LogoutTime == null)
-                    .OrderByDescending(p => p.LoginTime)
-                    .FirstOrDefault();
-
-                if (lastLogin != null)
+                if (!isInitialized)
                 {
-                    lastLogin.LogoutTime = DateTime.Now;
-                    lastLogin.Operation = "LoggedOff";
-                    os.CommitChanges();
+                    application.LoggedOn -= Application_LoggedOn;
+                    application.LoggingOff -= Application_LoggedOff;
+
+                    application.LoggedOn += Application_LoggedOn;
+                    application.LoggingOff += Application_LoggedOff;
+
+                    isInitialized = true;
+
+                    // Add debug output to confirm setup
                 }
             }
         }
 
+        private void Application_LoggedOff(object sender, EventArgs e)
+        {
+            try
+            {
+                string currentUserName = SecuritySystem.CurrentUserName;
+                if (string.IsNullOrEmpty(currentUserName)) return;
+
+                var app = sender as XafApplication;
+                if (app == null) return;
+                using (IObjectSpace os = app.CreateObjectSpace(typeof(LoginHistory)))
+                {
+                    var lastLogin = os.GetObjectsQuery<LoginHistory>()
+                        .Where(i => i.UserName == currentUserName && i.LogoutTime == null)
+                        .OrderByDescending(p => p.LoginTime)
+                        .FirstOrDefault();
+
+                    if (lastLogin != null)
+                    {
+                        lastLogin.LogoutTime = DateTime.Now;
+                        lastLogin.Operation = "LoggedOff";
+                        os.CommitChanges();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in LoggedOff handler: {ex.Message}");
+            }
+        }
 
         private void Application_LoggedOn(object sender, LogonEventArgs e)
         {
-            var app= sender as XafApplication;
-            using (var os = app.CreateObjectSpace()) {
-                var history = os.CreateObject<LoginHistory>();
-                history.UserName = SecuritySystem.CurrentUserName ;
-                history.Operation = "LoggedOn";
-                history.LoginTime = DateTime.Now;
-                os.CommitChanges();
+            try
+            {
+                var app = sender as XafApplication;
+                if (app == null) {return;}
+
+                string userName = SecuritySystem.CurrentUserName;
+                if (string.IsNullOrEmpty(userName)) return;
+
+                using (var os = app.CreateObjectSpace())
+                {
+                    var recentLogin = os.GetObjectsQuery<LoginHistory>()
+                        .Where(h => h.UserName == userName
+                                   && h.Operation == "LoggedOn"
+                                   && h.LoginTime > DateTime.Now.AddSeconds(-30))
+                        .OrderByDescending(h => h.LoginTime)
+                        .FirstOrDefault();
+
+                    if (recentLogin == null)
+                    {
+                        var history = os.CreateObject<LoginHistory>();
+                        history.UserName = userName;
+                        history.Operation = "LoggedOn";
+                        history.LoginTime = DateTime.Now;
+
+                        try
+                        {
+                            var ipProperty = history.GetType().GetProperty("IPAddress");
+                            if (ipProperty != null && ipProperty.CanWrite)
+                            {
+                                ipProperty.SetValue(history, GetLocalIPAddress());
+                            }
+
+                            var hostProperty = history.GetType().GetProperty("HostName");
+                            if (hostProperty != null && hostProperty.CanWrite)
+                            {
+                                hostProperty.SetValue(history, Environment.MachineName);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"{ex.Message}");
+                        }
+
+                        os.CommitChanges();
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Duplicate login prevented for {userName} - Last login was at {recentLogin.LoginTime}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in LoggedOn handler: {ex.Message}");
             }
         }
+
+        private string GetLocalIPAddress()
+        {
+            try
+            {
+                var host = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName());
+                foreach (var ip in host.AddressList)
+                {
+                    if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                    {
+                        return ip.ToString();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error getting IP address: {ex.Message}");
+            }
+            return "Unknown";
+        }
+
         public override void CustomizeTypesInfo(ITypesInfo typesInfo)
         {
             base.CustomizeTypesInfo(typesInfo);

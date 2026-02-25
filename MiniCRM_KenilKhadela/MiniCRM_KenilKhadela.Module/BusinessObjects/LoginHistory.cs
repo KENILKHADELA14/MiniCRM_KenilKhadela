@@ -12,59 +12,107 @@ using DevExpress.ExpressApp.Model;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
 
-namespace MiniCRM_KenilKhadela.Module.BusinessObjects;
-
-[NavigationItem("Security")]
-public class LoginHistory : BaseObject
+namespace MiniCRM_KenilKhadela.Module.BusinessObjects
 {
-    // Inherit from a different class to provide a custom primary key, concurrency and deletion behavior, etc. (https://docs.devexpress.com/eXpressAppFramework/113146/business-model-design-orm/business-model-design-with-xpo/base-persistent-classes).
-    // Use CodeRush to create XPO classes and properties with a few keystrokes.
-    // https://docs.devexpress.com/CodeRushForRoslyn/118557
-    public LoginHistory(Session session)
-        : base(session)
+    [NavigationItem("Security")]
+    public class LoginHistory : BaseObject
     {
-    }
-    public override void AfterConstruction()
-    {
-        base.AfterConstruction();
-    }
-
-    private string userName;
-    public string UserName
-    {
-        get => userName;
-        set => SetPropertyValue(nameof(UserName), ref userName, value);
-    }
-
-    private string operation; public string Operation { get => operation; set => SetPropertyValue(nameof(Operation), ref operation, value); }
-
-    private DateTime loginTime;
-    [ModelDefault("EditMask", "G")]
-    [ModelDefault("DisplayFormat", "G")]
-    [ModelDefault("EditMaskType", "DateTime")]
-    public DateTime LoginTime
-    {
-        get => loginTime;
-        set => SetPropertyValue(nameof(LoginTime), ref loginTime, value);
-    }
-
-    public string IPAddress = System.Net.IPAddress.Loopback.ToString();
-    public string HostName = System.Net.Dns.GetHostName();
-
-    private DateTime? logoutTime; public DateTime? LogoutTime { get => logoutTime; set => SetPropertyValue(nameof(LogoutTime), ref logoutTime, value); }
-
-    private XPCollection<AuditDataItemPersistent> auditTrail;
-    [CollectionOperationSet(AllowAdd = false, AllowRemove = false)]
-    public XPCollection<AuditDataItemPersistent> AuditTrail
-    {
-        get
+        public LoginHistory(Session session) : base(session)
         {
-            if (auditTrail == null)
+        }
+        public override void AfterConstruction()
+        {
+            base.AfterConstruction();
+
+            if (Session.IsNewObject(this))
             {
-                auditTrail = AuditedObjectWeakReference.GetAuditTrail(Session, this);
+                LoginTime = DateTime.Now;
             }
-            return auditTrail;
+        }
+
+        private string _userName;
+        [Size(255)]
+        [Persistent("UserName")]
+        [Indexed(Name = "UserNameIndex")]
+        public string UserName
+        {
+            get { return _userName; }
+            set { SetPropertyValue(nameof(UserName), ref _userName, value); }
+        }
+
+        private string _operation;
+        [Size(50)]
+        [Persistent("Operation")]
+        public string Operation
+        {
+            get { return _operation; }
+            set { SetPropertyValue(nameof(Operation), ref _operation, value); }
+        }
+
+        private DateTime _loginTime;
+        [Persistent("LoginTime")]
+        [ModelDefault("EditMask", "G")]
+        [ModelDefault("DisplayFormat", "G")]
+        [ModelDefault("EditMaskType", "DateTime")]
+        [Indexed(Name = "LoginTimeIndex")]
+        public DateTime LoginTime
+        {
+            get { return _loginTime; }
+            set { SetPropertyValue(nameof(LoginTime), ref _loginTime, value); }
+        }
+
+        private string _iPAddress;
+        [Size(50)]
+        [Persistent("IPAddress")]
+        [ModelDefault("AllowEdit", "False")]
+        public string IPAddress
+        {
+            get { return _iPAddress; }
+            set { SetPropertyValue(nameof(IPAddress), ref _iPAddress, value); }
+        }
+
+        private string _hostName;
+        [Size(255)]
+        [Persistent("HostName")]
+        [ModelDefault("AllowEdit", "False")]
+        public string HostName
+        {
+            get { return _hostName; }
+            set { SetPropertyValue(nameof(HostName), ref _hostName, value); }
+        }
+
+        private DateTime? _logoutTime;
+        [Persistent("LogoutTime")]
+        [ModelDefault("EditMask", "G")]
+        [ModelDefault("DisplayFormat", "G")]
+        [ModelDefault("EditMaskType", "DateTime")]
+        public DateTime? LogoutTime
+        {
+            get { return _logoutTime; }
+            set { SetPropertyValue(nameof(LogoutTime), ref _logoutTime, value); }
+        }
+
+        [Persistent("IsActive")]
+        private bool _isActive;
+        [PersistentAlias("LogoutTime == null")]
+        [ModelDefault("AllowEdit", "False")]
+        public bool IsActive
+        {
+            get { return LogoutTime == null; }
+        }
+
+        private XPCollection<AuditDataItemPersistent> _auditTrail;
+        [CollectionOperationSet(AllowAdd = false, AllowRemove = false)]
+        public XPCollection<AuditDataItemPersistent> AuditTrail
+        {
+            get
+            {
+                if (_auditTrail == null)
+                {
+                    _auditTrail = AuditedObjectWeakReference.GetAuditTrail(Session, this);
+                }
+                return _auditTrail;
+            }
         }
     }
-
 }
