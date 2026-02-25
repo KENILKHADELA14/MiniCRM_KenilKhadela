@@ -93,14 +93,20 @@ namespace MiniCRM_KenilKhadela.Module
                 using (IObjectSpace os = app.CreateObjectSpace(typeof(LoginHistory)))
                 {
                     var lastLogin = os.GetObjectsQuery<LoginHistory>()
-                        .Where(i => i.UserName == currentUserName && i.LogoutTime == null)
+                        .Where(i => i.UserName == currentUserName && i.LogoutTime == null && i.Operation=="LoggedOn")
                         .OrderByDescending(p => p.LoginTime)
                         .FirstOrDefault();
 
                     if (lastLogin != null)
                     {
-                        lastLogin.LogoutTime = DateTime.Now;
-                        lastLogin.Operation = "LoggedOff";
+                        var logoffRecord =os.CreateObject<LoginHistory>();
+                        logoffRecord.UserName = currentUserName;
+                        logoffRecord.Operation = "LoggedOff";
+                        logoffRecord.LoginTime = lastLogin.LoginTime;
+                        logoffRecord.LogoutTime = DateTime.Now;
+                        logoffRecord.IPAddress = lastLogin.IPAddress;
+                        logoffRecord.HostName = lastLogin.HostName;
+
                         os.CommitChanges();
                     }
                 }
