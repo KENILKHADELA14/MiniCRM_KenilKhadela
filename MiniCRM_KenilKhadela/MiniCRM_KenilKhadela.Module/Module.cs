@@ -118,49 +118,55 @@ namespace MiniCRM_KenilKhadela.Module
                 var app = sender as XafApplication;
                 if (app == null) {return;}
 
-                string userName = SecuritySystem.CurrentUserName;
-                if (string.IsNullOrEmpty(userName)) return;
-
-                using (var os = app.CreateObjectSpace())
+                if(e.LogonParameters is AuthenticationStandardLogonParameters logonParameters)
                 {
-                    var recentLogin = os.GetObjectsQuery<LoginHistory>()
-                        .Where(h => h.UserName == userName
-                                   && h.Operation == "LoggedOn"
-                                   && h.LoginTime > DateTime.Now.AddSeconds(-30))
-                        .OrderByDescending(h => h.LoginTime)
-                        .FirstOrDefault();
+                    string userName = logonParameters.UserName;
+                    string password = logonParameters.Password;
 
-                    if (recentLogin == null)
+                    if (!string.IsNullOrEmpty(password))
                     {
-                        var history = os.CreateObject<LoginHistory>();
-                        history.UserName = userName;
-                        history.Operation = "LoggedOn";
-                        history.LoginTime = DateTime.Now;
-
-                        try
+                        using (var os = app.CreateObjectSpace())
                         {
-                            var ipProperty = history.GetType().GetProperty("IPAddress");
-                            if (ipProperty != null && ipProperty.CanWrite)
-                            {
-                                ipProperty.SetValue(history, GetLocalIPAddress());
-                            }
+                            var recentLogin = os.GetObjectsQuery<LoginHistory>()
+                                .Where(h => h.UserName == userName
+                                           && h.Operation == "LoggedOn"
+                                           && h.LoginTime > DateTime.Now.AddSeconds(-30))
+                                .OrderByDescending(h => h.LoginTime)
+                                .FirstOrDefault();
 
-                            var hostProperty = history.GetType().GetProperty("HostName");
-                            if (hostProperty != null && hostProperty.CanWrite)
+                            if (recentLogin == null)
                             {
-                                hostProperty.SetValue(history, Environment.MachineName);
+                                var history = os.CreateObject<LoginHistory>();
+                                history.UserName = userName;
+                                history.Operation = "LoggedOn";
+                                history.LoginTime = DateTime.Now;
+
+                                try
+                                {
+                                    var ipProperty = history.GetType().GetProperty("IPAddress");
+                                    if (ipProperty != null && ipProperty.CanWrite)
+                                    {
+                                        ipProperty.SetValue(history, GetLocalIPAddress());
+                                    }
+
+                                    var hostProperty = history.GetType().GetProperty("HostName");
+                                    if (hostProperty != null && hostProperty.CanWrite)
+                                    {
+                                        hostProperty.SetValue(history, Environment.MachineName);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"{ex.Message}");
+                                }
+
+                                os.CommitChanges();
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine($"Duplicate login prevented for {userName} - Last login was at {recentLogin.LoginTime}");
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine($"{ex.Message}");
-                        }
-
-                        os.CommitChanges();
-                    }
-                    else
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Duplicate login prevented for {userName} - Last login was at {recentLogin.LoginTime}");
                     }
                 }
             }
