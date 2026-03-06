@@ -1,21 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Application Title="MiniCRM_KenilKhadela">
   <BOModel>
+    <Class Name="DevExpress.Persistent.BaseImpl.PermissionPolicy.PermissionPolicyRoleBase" DefaultListViewAllowEdit="True" />
+    <Class Name="DevExpress.Persistent.BaseImpl.PermissionPolicy.PermissionPolicyUser" DefaultListViewAllowEdit="True" />
     <Class Name="MiniCRM_KenilKhadela.Module.BusinessObjects.Lead">
       <OwnMembers>
         <Member Name="Phone" DisplayFormat="" EditMask="0000-00-0000" />
       </OwnMembers>
     </Class>
   </BOModel>
-  <NavigationItems>
-    <Items>
-      <Item Id="Security">
-        <Items>
-          <Item Id="ApplicationUser_ListView" Caption="User" />
-        </Items>
-      </Item>
-    </Items>
-  </NavigationItems>
   <Options>
     <LayoutManagerOptions RequiredFieldMark="*" />
   </Options>
@@ -27,6 +20,11 @@
   <Views>
     <DetailView Id="Accounts_DetailView" ImageName="BO_Employee">
       <Items>
+        <PropertyEditor Id="CreatedBy" AllowEdit="False" />
+        <PropertyEditor Id="CreatedOn" AllowEdit="False" />
+        <PropertyEditor Id="ModifiedBy" AllowEdit="False" />
+        <PropertyEditor Id="ModifiedOn" AllowEdit="False" />
+        <PropertyEditor Id="Owner" AllowEdit="False" />
         <PropertyEditor Id="Phone" EditMask="0000-00-0000" />
       </Items>
       <Layout>
@@ -133,11 +131,7 @@
               <LayoutGroup Id="Autodab49226-397d-4d58-9227-1684f5257dea" ShowCaption="False" Caption="Autodab49226-397d-4d58-9227-1684f5257dea(4)" Direction="Vertical" Index="0" RelativeSize="23.873873873873872" IsNewNode="True">
                 <LayoutItem Id="Priority" ViewItem="Priority" Index="0" RelativeSize="100" IsNewNode="True" />
               </LayoutGroup>
-              <LayoutItem Id="Subject" RelativeSize="14.414414414414415" Index="1" />
               <LayoutItem Id="Phone" ViewItem="Phone" Index="2" RelativeSize="14.414414414414415" IsNewNode="True" />
-              <LayoutItem Id="StartDate" RelativeSize="14.414414414414415" Index="3" />
-              <LayoutItem Id="EndDate" RelativeSize="14.414414414414415" Index="4" />
-              <LayoutItem Id="State" RelativeSize="18.46846846846847" Index="5" />
             </LayoutGroup>
             <LayoutGroup Id="ActivityPhone" RelativeSize="41.832669322709165" Removed="True">
               <LayoutGroup Id="ActivityPhone_col1" RelativeSize="49.91869918699187" Caption="ActivityPhone_col1">
@@ -197,7 +191,7 @@
       </Items>
       <Layout>
         <LayoutGroup Id="Main" RelativeSize="100">
-          <LayoutGroup Id="Auto24203aec-2ce7-4a5b-b485-2dd15573544f" ShowCaption="False" Caption="" Direction="Horizontal" Index="0" RelativeSize="8.54368932038835" IsNewNode="True">
+          <LayoutGroup Id="Auto24203aec-2ce7-4a5b-b485-2dd15573544f" ShowCaption="False" Caption="Auto24203aec-2ce7-4a5b-b485-2dd15573544f(2)" Direction="Horizontal" Index="0" RelativeSize="10.311284046692608" IsNewNode="True">
             <LayoutItem Id="Item3" Index="0" RelativeSize="50" IsNewNode="True" />
             <LayoutItem Id="State" ViewItem="State" Index="1" RelativeSize="50" IsNewNode="True" />
           </LayoutGroup>
@@ -206,16 +200,21 @@
             <LayoutItem Id="RecurrenceInfoXml" RelativeSize="66.30286493860847" Index="0" Removed="True" />
             <LayoutItem Id="ResourceId" RelativeSize="33.560709413369715" Removed="True" />
           </LayoutGroup>
-          <TabbedGroup Id="Item1" CaptionLocation="Top" Index="1" RelativeSize="91.45631067961165" IsNewNode="True">
+          <TabbedGroup Id="Item1" CaptionLocation="Top" Index="1" RelativeSize="89.6887159533074" IsNewNode="True">
             <LayoutGroup Id="Item2" ShowCaption="True" CaptionLocation="Top" Direction="Vertical" Index="0" Caption="Summary" RelativeSize="100" IsNewNode="True">
-              <LayoutItem Id="Priority" ViewItem="Priority" Index="0" RelativeSize="10.576923076923077" IsNewNode="True" />
-              <LayoutItem Id="Subject" ViewItem="Subject" Index="1" RelativeSize="7.6923076923076925" IsNewNode="True" />
-              <LayoutItem Id="Description" ViewItem="Description" Index="2" RelativeSize="40.38461538461539" IsNewNode="True" />
-              <LayoutItem Id="Reasons" ViewItem="Reasons" Index="3" RelativeSize="7.6923076923076925" IsNewNode="True" />
-              <LayoutItem Id="StartDate" ViewItem="StartDate" Index="4" RelativeSize="7.6923076923076925" IsNewNode="True" />
-              <LayoutItem Id="EndDate" ViewItem="EndDate" Index="5" RelativeSize="7.6923076923076925" IsNewNode="True" />
-              <LayoutItem Id="AllDay" ViewItem="AllDay" Index="6" RelativeSize="7.6923076923076925" IsNewNode="True" />
-              <LayoutItem Id="Location" ViewItem="Location" Index="7" RelativeSize="10.576923076923077" IsNewNode="True" />
+              <LayoutItem Id="Priority" ViewItem="Priority" Index="0" RelativeSize="10.83743842364532" IsNewNode="True" />
+              <LayoutItem Id="Subject" ViewItem="Subject" Index="1" RelativeSize="7.8817733990147785" IsNewNode="True" />
+              <LayoutItem Id="Description" ViewItem="Description" Index="2" RelativeSize="26.600985221674875" IsNewNode="True" />
+              <LayoutItem Id="ReminderEmail" ViewItem="ReminderEmail" Index="3" RelativeSize="7.8817733990147785" IsNewNode="True" />
+              <LayoutItem Id="Reasons" ViewItem="Reasons" Index="4" RelativeSize="7.8817733990147785" IsNewNode="True" />
+              <LayoutItem Id="StartDate" ViewItem="StartDate" Index="5" RelativeSize="7.8817733990147785" IsNewNode="True" />
+              <LayoutItem Id="EndDate" ViewItem="EndDate" Index="6" RelativeSize="7.8817733990147785" IsNewNode="True" />
+              <LayoutGroup Id="Auto9bcbc3b9-fb43-45f6-b69b-ef838bfa5b97" ShowCaption="False" Caption="Auto9bcbc3b9-fb43-45f6-b69b-ef838bfa5b97(13)" Direction="Horizontal" Index="7" RelativeSize="12.31527093596059" IsNewNode="True">
+                <LayoutItem Id="AllDay" ViewItem="AllDay" Index="0" RelativeSize="49.20454545454545" IsNewNode="True" />
+                <LayoutItem Id="RemindMe" ViewItem="RemindMe" Index="1" RelativeSize="24.886363636363637" IsNewNode="True" />
+                <LayoutItem Id="IsPostponed" ViewItem="IsPostponed" Index="2" RelativeSize="25.90909090909091" IsNewNode="True" />
+              </LayoutGroup>
+              <LayoutItem Id="Location" ViewItem="Location" Index="8" RelativeSize="10.83743842364532" IsNewNode="True" />
             </LayoutGroup>
           </TabbedGroup>
           <LayoutGroup Id="SimpleEditors" RelativeSize="6.47921760391198" Removed="True">
@@ -246,10 +245,18 @@
     </DetailView>
     <ListView Id="Appointment_ListView" ImageName="BO_Appointment" AllowEdit="True" />
     <ListView Id="Appointment_LookupListView" ImageName="BO_Appointment" />
+    <DetailView Id="BaseAuditedObjectWeakReference_DetailView" AllowDelete="False" AllowEdit="False" AllowNew="False" />
+    <ListView Id="BaseAuditedObjectWeakReference_ListView" AllowDelete="False" AllowLink="False" AllowNew="False" />
+    <ListView Id="BaseAuditedObjectWeakReference_LookupListView" AllowDelete="False" AllowLink="False" AllowNew="False" />
     <DetailView Id="Contact_DetailView" ImageName="BO_Contact">
       <Items>
+        <PropertyEditor Id="CreatedBy" AllowEdit="False" />
+        <PropertyEditor Id="CreatedOn" AllowEdit="False" />
         <PropertyEditor Id="FullName" Caption="Name" />
         <PropertyEditor Id="MobileNumber" EditMask="0000-00-0000" />
+        <PropertyEditor Id="ModifiedBy" AllowEdit="False" />
+        <PropertyEditor Id="ModifiedOn" AllowEdit="False" />
+        <PropertyEditor Id="Owner" AllowEdit="False" />
         <PropertyEditor Id="PhoneNumber" EditMask="0000-00-0000" />
       </Items>
       <Layout>
@@ -351,7 +358,7 @@
         </LayoutGroup>
       </Layout>
     </DetailView>
-    <ListView Id="Contact_ListView" AllowEdit="True" AllowLink="True" ImageName="BO_Contact" />
+    <ListView Id="Contact_ListView" AllowEdit="False" AllowLink="True" ImageName="BO_Contact" />
     <DetailView Id="Country_DetailView" ImageName="BO_Country" />
     <ListView Id="Country_ListView" ImageName="BO_Country" />
     <ListView Id="Lead_Activities_ListView" AllowNew="True" AllowEdit="True" IsNewNode="True">
@@ -365,9 +372,13 @@
         <PropertyEditor Id="Activities" Index="1" AlloEdit="True" AllowNew="True" Model="MiniCRM_KenilKhadela.Module.BusinessObjects.Activity" EditorTypeName="MiniCRM_KenilKhadela.Blazor.Server.Editors.ActivityTimeLineListEditor" ImmediatePostData="True" View="Lead_Activities_ListView" />
         <PropertyEditor Id="Address1" ImmediatePostData="False" LookupEditorMode="Auto" AllowEdit="True" Index="2" />
         <PropertyEditor Id="Address2" Index="3" />
+        <PropertyEditor Id="CreatedBy" AllowEdit="False" />
+        <PropertyEditor Id="CreatedOn" AllowEdit="False" />
         <PropertyEditor Id="DisplayName" Caption="Name" />
         <ControlDetailItem Id="LeadStatusBar" ControlTypeName="MiniCRM_KenilKhadela.Blazor.Server.Editors.LeadStatusBarViewItem" IsNewNode="True" />
-        <PropertyEditor Id="Owner" ImmediatePostData="True" />
+        <PropertyEditor Id="ModifiedBy" AllowEdit="False" />
+        <PropertyEditor Id="ModifiedOn" AllowEdit="False" />
+        <PropertyEditor Id="Owner" ImmediatePostData="True" AllowEdit="False" />
       </Items>
       <Layout>
         <LayoutGroup Id="Main" RelativeSize="100">
@@ -472,9 +483,15 @@
     <ListView Id="LoginHistory_ListView" AllowDelete="False" AllowLink="False" AllowNew="False" ImageName="Action_Security_ChangePassword" />
     <DetailView Id="Opportunities_DetailView" ObjectCaptionFormat="{0:Topic}" ImageName="BO_Opportunity">
       <Items>
+        <PropertyEditor Id="AuditTrail" AllowEdit="False" />
         <PropertyEditor Id="Budget" DisplayFormat="$ {0:0.00}" />
         <PropertyEditor Id="Contact" EditMask="" />
+        <PropertyEditor Id="CreatedBy" AllowEdit="False" />
+        <PropertyEditor Id="CreatedOn" AllowEdit="False" />
         <ControlDetailItem Id="LeadStatusBar" ControlTypeName="MiniCRM_KenilKhadela.Blazor.Server.Editors.LeadStatusBarViewItem" IsNewNode="True" />
+        <PropertyEditor Id="ModifiedBy" AllowEdit="False" />
+        <PropertyEditor Id="ModifiedOn" AllowEdit="False" />
+        <PropertyEditor Id="Owner" AllowEdit="False" />
       </Items>
       <Layout>
         <LayoutGroup Id="Main" RelativeSize="100">
@@ -540,5 +557,30 @@
       </Layout>
     </DetailView>
     <ListView Id="Opportunities_ListView" ImageName="BO_Opportunity" />
+    <DetailView Id="TaskItem_DetailView">
+      <Layout>
+        <LayoutGroup Id="Main" RelativeSize="100">
+          <LayoutGroup Id="SimpleEditors" RelativeSize="22.967741935483872">
+            <LayoutGroup Id="TaskItem" RelativeSize="100">
+              <LayoutGroup Id="TaskItem_col1" RelativeSize="50">
+                <LayoutItem Id="Title" RelativeSize="36.666666666666664" />
+                <LayoutItem Id="IsCompleted" RelativeSize="26.666666666666668" />
+                <LayoutItem Id="Project" RelativeSize="36.666666666666664" />
+              </LayoutGroup>
+              <LayoutGroup Id="TaskItem_col2" RelativeSize="50">
+                <LayoutItem Id="Parent" RelativeSize="36.666666666666664" />
+                <LayoutItem Id="Name" RelativeSize="63.333333333333336" />
+              </LayoutGroup>
+            </LayoutGroup>
+            <LayoutGroup Id="XPObject" Caption="Oid" RelativeSize="56.33074935400517" Removed="True">
+              <LayoutItem Id="Oid" Removed="True" />
+            </LayoutGroup>
+          </LayoutGroup>
+          <LayoutGroup Id="Children_Group" Direction="Vertical" RelativeSize="77.03225806451613">
+            <LayoutItem Id="Children" RelativeSize="100" />
+          </LayoutGroup>
+        </LayoutGroup>
+      </Layout>
+    </DetailView>
   </Views>
 </Application>

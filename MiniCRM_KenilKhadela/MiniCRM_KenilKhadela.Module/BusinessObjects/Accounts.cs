@@ -3,6 +3,7 @@ using DevExpress.ExpressApp.DC;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.BaseImpl.PermissionPolicy;
+using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
 using DevExpress.XtraReports.Native.CodeCompletion;
 using System;
@@ -68,13 +69,21 @@ namespace MiniCRM_KenilKhadela.Module.BusinessObjects
             set => SetPropertyValue(nameof(TickerSymbol),ref tickerSymbol, value);
         }
 
-
+        [VisibleInListView(false)]
+        [ImmediatePostData]
+        [ExpandObjectMembers(ExpandObjectMembers.Never)]
+        [RuleRequiredField]
+        [DevExpress.Xpo.Aggregated]
         public Address Address1
         {
             get => address1;
             set => SetPropertyValue(nameof(Address1),ref address1, value);
         }
-
+        [VisibleInListView(false)]
+        [ImmediatePostData]
+        [ExpandObjectMembers(ExpandObjectMembers.Never)]
+        [RuleRequiredField]
+        [DevExpress.Xpo.Aggregated]
         public Address Address2
         {
             get=> address2;

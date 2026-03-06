@@ -8,6 +8,7 @@ using DevExpress.ExpressApp.StateMachine;
 using DevExpress.ExpressApp.StateMachine.Xpo;
 using DevExpress.ExpressApp.Xpo;
 using DevExpress.Persistent.Base;
+using DevExpress.Persistent.Base.General;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using DevExpress.Persistent.Validation;
@@ -23,7 +24,7 @@ namespace MiniCRM_KenilKhadela.Module.BusinessObjects;
 [DefaultClassOptions]
 [NavigationItem("Sales")]
 [ImageName("BO_Lead")]
-public class Lead : BaseObject, IStateMachineProvider
+public class Lead : BaseObject, IStateMachineProvider 
 {
     public Lead(Session session)
         : base(session)
@@ -76,6 +77,7 @@ public class Lead : BaseObject, IStateMachineProvider
 
     private DateTime? createdOn;
     [XafDisplayName(nameof(CreatedOn))]
+    [ReadOnly(true)]
     [ModelDefault("EditMask", "G")]
     [ModelDefault("DisplayFormat", "G")]
     [ModelDefault("EditMaskType", "DateTime")]
@@ -86,6 +88,7 @@ public class Lead : BaseObject, IStateMachineProvider
     }
 
     private DateTime? modifiedOn;
+    [ReadOnly(true)]
     [ModelDefault("EditMask", "G")]
     [ModelDefault("DisplayFormat", "G")]
     [ModelDefault("EditMaskType", "DateTime")]
@@ -132,6 +135,7 @@ public class Lead : BaseObject, IStateMachineProvider
     }
 
     private ApplicationUser owner;
+    [ReadOnly(true)]
     public ApplicationUser Owner
     {
         get => owner;
@@ -139,13 +143,16 @@ public class Lead : BaseObject, IStateMachineProvider
     }
 
     private ApplicationUser createdBy;
+    [ReadOnly(true)]
     public ApplicationUser CreatedBy
     {
         get => createdBy;
         set => SetPropertyValue(nameof(CreatedBy), ref createdBy, value);
     }
 
-    private ApplicationUser modifiedBy; public ApplicationUser ModifiedBy
+    private ApplicationUser modifiedBy;
+    [ReadOnly(true)]
+    public ApplicationUser ModifiedBy
     {
         get => modifiedBy;
         set => SetPropertyValue(nameof(ModifiedBy), ref modifiedBy, value);
@@ -358,6 +365,7 @@ public class Lead : BaseObject, IStateMachineProvider
 
     private XPCollection<AuditDataItemPersistent> auditTrail;
     [CollectionOperationSet(AllowAdd = false, AllowRemove = false)]
+    [ModelDefault("AllowEdit","False")]
     public XPCollection<AuditDataItemPersistent> AuditTrail
     {
         get
@@ -373,12 +381,12 @@ public class Lead : BaseObject, IStateMachineProvider
     {
         Account = new Accounts(Session)
         {
-            AccountName = CompanyName,
+            AccountName = $"Account Created from Lead: {FullName}",
             Address1 = Address1,
             Address2 = Address2,
             Phone = Phone,
             Website = Website,
-            ReadableName = $"Account Created from Lead: {FullName}",
+            ReadableName = FullName,
             PrimaryContact = ParentContact
         };
 

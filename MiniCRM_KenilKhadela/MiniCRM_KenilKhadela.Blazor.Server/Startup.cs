@@ -49,7 +49,9 @@ namespace MiniCRM_KenilKhadela.Blazor.Server
                     .AddConditionalAppearance()
                     .AddFileAttachments()
                     .AddScheduler()
-                    .AddNotifications()
+                    .AddNotifications(options => {
+                        options.NotificationsRefreshInterval = TimeSpan.FromMinutes(1);
+                    })
                     .AddOffice()
                     .AddDashboards()
                     .AddReports(options =>

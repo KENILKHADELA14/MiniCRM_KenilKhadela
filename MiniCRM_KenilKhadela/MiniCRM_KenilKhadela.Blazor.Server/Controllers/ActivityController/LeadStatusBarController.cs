@@ -27,10 +27,10 @@ namespace MiniCRM_KenilKhadela.Blazor.Server.Controllers
             {
                 currentLead = lead;
             }
-            else if (View.CurrentObject is Opportunities opportunity)
-            {
-                currentLead = opportunity.Lead;
-            }
+            //else if (View.CurrentObject is Opportunities opportunity)
+            //{
+            //    currentLead = opportunity.Lead;
+            //}
 
             if (currentLead != null)
             {

@@ -13,6 +13,7 @@ using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
 using DevExpress.XtraRichEdit.Commands;
 using System.Reflection.Emit;
+using DevExpress.Persistent.Base.General;
 
 namespace MiniCRM_KenilKhadela.Module.BusinessObjects;
 public enum ActivityDirection
@@ -34,7 +35,7 @@ public enum ActivityState
 //[DefaultListViewOptions(MasterDetailMode.ListViewOnly, false, NewItemRowPosition.None)]
 //[Persistent("DatabaseTableName")]
 // Specify more UI options using a declarative approach (https://docs.devexpress.com/eXpressAppFramework/112701/business-model-design-orm/data-annotations-in-data-model).
-public class Activity : BaseObject {
+public class Activity : BaseObject , ISupportNotifications {
     // Inherit from a different class to provide a custom primary key, concurrency and deletion behavior, etc. (https://docs.devexpress.com/eXpressAppFramework/113146/business-model-design-orm/business-model-design-with-xpo/base-persistent-classes).
     // Use CodeRush to create XPO classes and properties with a few keystrokes.
     // https://docs.devexpress.com/CodeRushForRoslyn/118557
@@ -126,6 +127,44 @@ public class Activity : BaseObject {
     {
         get => contact;
         set => SetPropertyValue(nameof(Contact), ref contact, value);
+    }
+
+    private DateTime? alarmTime;
+    [VisibleInListView(false)]
+    [ModelDefault("EditMask", "g")]
+    [ModelDefault("DisplayFormat", "g")]
+    [ModelDefault("EditMaskType", "DateTime")]
+    public DateTime? AlarmTime { get => alarmTime; set => SetPropertyValue(nameof(AlarmTime), ref alarmTime, value); }
+
+    [Browsable(false)]
+    public object UniqueId => Oid;
+
+    [Browsable(false)]
+    public string NotificationMessage => $"{Subject} - (Starts: {StartDate:g})";
+
+    private bool isPostponed;
+    [VisibleInListView(false)]
+
+    private string reminderEmail="Kenkha@andaze.com";
+    [VisibleInListView(false)]
+    public string ReminderEmail
+    {
+        get => reminderEmail;
+        set => SetPropertyValue(nameof(ReminderEmail), ref reminderEmail, value);
+    }
+
+    private string assignedTo;
+    public string AssignedTo { get => assignedTo; set=> SetPropertyValue(nameof(AssignedTo), ref assignedTo, value);}
+    public bool IsPostponed { get => isPostponed; set => SetPropertyValue(nameof(IsPostponed),ref isPostponed,value); }
+
+    public bool RemindMe
+    {
+        get => AlarmTime.HasValue;
+        set {
+            if (!value) AlarmTime = null;
+            else if (AlarmTime == null) AlarmTime = StartDate.AddMinutes(10);
+            OnChanged(nameof(RemindMe));
+        }
     }
 
     public override void AfterConstruction() {

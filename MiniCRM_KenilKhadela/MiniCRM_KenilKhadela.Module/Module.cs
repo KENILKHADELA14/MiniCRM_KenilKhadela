@@ -21,6 +21,8 @@ using MiniCRM_KenilKhadela.Module.BusinessObjects;
 using DevExpress.ExpressApp.Security;
 using DevExpress.Persistent.BaseImpl.AuditTrail.Services;
 using DevExpress.Persistent.AuditTrail;
+using DevExpress.ExpressApp.Notifications;
+using DevExpress.Data.Filtering;
 
 namespace MiniCRM_KenilKhadela.Module
 {
@@ -79,6 +81,19 @@ namespace MiniCRM_KenilKhadela.Module
                     // Add debug output to confirm setup
                 }
             }
+
+            application.SetupComplete += (s, e) =>
+            {
+                var notificationsModule = application.Modules.FindModule<NotificationsModule>();
+                var provider = notificationsModule.DefaultNotificationsProvider;
+                provider.CustomizeNotificationCollectionCriteria += (sender, args) =>
+                {
+                    if (args.Type == typeof(Activity))
+                    {
+                        args.Criteria = CriteriaOperator.Parse("AssignedTo.Oid = CurrentUserId()");
+                    }
+                };
+            };
         }
 
         private void Application_LoggedOff(object sender, EventArgs e)

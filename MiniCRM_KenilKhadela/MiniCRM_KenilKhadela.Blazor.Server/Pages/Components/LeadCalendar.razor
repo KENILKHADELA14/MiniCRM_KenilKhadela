@@ -36,6 +36,7 @@ else
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public string Subject { get; set; }
+        public string Location{ get; set; }
         public string Description { get; set; }
         public bool AllDay { get; set; }
         public int Label { get; set; }
@@ -103,6 +104,7 @@ else
                         StartDate = apt.StartDate,
                         EndDate = apt.EndDate,
                         Subject = apt.Subject,
+                        Location= apt.Location,
                         Description = apt.Description,
                         AllDay = apt.AllDay,
                         Label = apt.Label
@@ -121,6 +123,7 @@ else
                         Start = nameof(SchedulerAppointmentModel.StartDate),
                         End = nameof(SchedulerAppointmentModel.EndDate),
                         Subject = nameof(SchedulerAppointmentModel.Subject),
+                        Location= nameof(SchedulerAppointmentModel.Location),
                         Description = nameof(SchedulerAppointmentModel.Description),
                         AllDay = nameof(SchedulerAppointmentModel.AllDay),
                         LabelId = nameof(SchedulerAppointmentModel.Label)
@@ -156,6 +159,7 @@ else
                         StartDate = apt.StartDate,
                         EndDate = apt.EndDate,
                         Subject = apt.Subject,
+                        Location= apt.Location,
                         Description = apt.Description,
                         AllDay = apt.AllDay,
                         Label = apt.Label
@@ -183,6 +187,7 @@ else
             apt.Description = e.Description ?? "";
             apt.StartDate = e.Start;
             apt.EndDate = e.End;
+            apt.Location = e.Location;
             apt.AllDay = e.AllDay;
             apt.Label = Convert.ToInt32(e.LabelId ?? 0);
 
@@ -195,6 +200,7 @@ else
                 StartDate = apt.StartDate,
                 EndDate = apt.EndDate,
                 Subject = apt.Subject,
+                Location= apt.Location,
                 Description = apt.Description,
                 AllDay = apt.AllDay,
                 Label = apt.Label
@@ -221,6 +227,7 @@ else
                 apt.Description = e.Description ?? "";
                 apt.StartDate = e.Start;
                 apt.EndDate = e.End;
+                apt.Location = e.Location;
                 apt.AllDay = e.AllDay;
                 apt.Label = Convert.ToInt32(e.LabelId ?? 0);
 

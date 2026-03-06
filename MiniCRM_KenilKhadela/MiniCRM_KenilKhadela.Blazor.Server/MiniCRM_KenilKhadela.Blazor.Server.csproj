@@ -36,6 +36,7 @@
     <PackageReference Include="DevExpress.ExpressApp.Scheduler" Version="25.2.4" />
     <PackageReference Include="DevExpress.ExpressApp.Scheduler.Blazor" Version="25.2.4" />
     <PackageReference Include="DevExpress.ExpressApp.Validation.Blazor" Version="25.2.*" />
+    <PackageReference Include="MailKit" Version="4.15.0" />
     
   </ItemGroup>
   <ItemGroup>
